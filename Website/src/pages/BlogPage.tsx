@@ -2,15 +2,17 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import HeroCarousel from "@/components/HeroCarousel";
-import { useLanguage } from "@/context/LanguageContext";
+import athleteTraining from "@/assets/athlete-training.jpg";
+import athleteRecovery from "@/assets/athlete-recovery.jpg";
+import athleteFocus from "@/assets/athlete-focus.jpg";
+import athleteGym from "@/assets/athlete-gym.jpg";
 
-const blogPostsEn = [
+const blogPosts = [
   {
     id: "stability-before-strength",
     title: "Why Stability Comes Before Strength",
     excerpt: "Most athletes chase strength. But uncontrolled strength turns into injury. The body distributes force within milliseconds — if that distribution fails, the chain breaks.",
-    image: "/images/hero-1.jpg",
+    image: athleteTraining,
     date: "April 10, 2026",
     category: "System",
     content: `Performance is often confused with strength. But the real foundation of athletic output is stability — the capacity to maintain control under load. When an athlete jumps, changes direction, or stops suddenly, force must be distributed through the entire kinetic chain. If that distribution fails at any link, compensation begins. Compensation saves performance short-term. It destroys tissue long-term.
@@ -21,7 +23,7 @@ The REFORGE system addresses this by building from the base: foot-ankle stabilit
     id: "injury-is-not-the-end",
     title: "Your Injury Is Not the End — It's Data",
     excerpt: "The body doesn't just recover. It adapts. Under the right system, what once limited you becomes your advantage.",
-    image: "/images/hero-2.jpg",
+    image: athleteRecovery,
     date: "April 3, 2026",
     category: "Mentality",
     content: `Most athletes see injury as a setback. A pause. Something to survive before returning to normal. But injury is information. It reveals exactly where the system failed — where load accumulated, where control was lost, where the chain broke.
@@ -32,7 +34,7 @@ REFORGE treats every injury as a map. Not a sentence. When we analyze your injur
     id: "athlete-mentality",
     title: "The Difference Between Training and Competing",
     excerpt: "Training is preparation. Competition is execution under pressure. Most athletes train their bodies but never train the gap between the two.",
-    image: "/images/hero-3.jpg",
+    image: athleteFocus,
     date: "March 27, 2026",
     category: "Performance",
     content: `There's a moment every competitive athlete knows — the gap between what you can do in training and what you actually do under pressure. That gap isn't physical. It's systemic. It's the result of training without context, building capacity without building the control systems that activate under stress.
@@ -43,7 +45,7 @@ REFORGE doesn't separate physical and mental preparation. Your training structur
     id: "load-distribution",
     title: "Load Distribution: Where Your Pain Really Comes From",
     excerpt: "The problem is rarely where the pain is. The problem is the loss of control at the start of the chain.",
-    image: "/images/hero-4.jpg",
+    image: athleteGym,
     date: "March 20, 2026",
     category: "System",
     content: `When running, jumping, or stopping, the body transfers load across a chain: Foot → Ankle → Knee → Hip → Core. If one link doesn't do its job, another takes over. The body is smart — but this solution is temporary. Short-term compensation becomes long-term structural damage.
@@ -52,93 +54,38 @@ The question isn't "where does it hurt?" — it's "where is the load accumulatin
   },
 ];
 
-const blogPostsTr = [
-  {
-    id: "stability-before-strength",
-    title: "Stabilite Neden Gucten Once Gelir",
-    excerpt: "Cogu sporcu guc pesinde kosar. Ama kontrolsuz guc sakatliga donusur. Vucut mili saniyeler icinde kuvet dagitir — bu dagilim basarisiz olursa, zincir kirilir.",
-    image: "/images/hero-1.jpg",
-    date: "10 Nisan 2026",
-    category: "Sistem",
-    content: `Performans cogu zaman gucle karistirilir. Ancak atletik ciktinin gercek temeli stabilitedir — yuk altinda kontrolu koruma kapasitesi. Bir sporcu zipladiginda, yon degistirdiginde veya aniden durdugunda, kuvvet tum kinetik zincir boyunca dagitilmalidir. Bu dagilim herhangi bir halkada basarisiz olursa, telafi baslar. Telafi kisa vadede performansi kurtarir. Uzun vadede dokuyu tahrip eder.
-
-REFORGE sistemi bunu tabandan insa ederek ele alir: ayak-ayak bilegi stabilitesi, sonra tek tarafli denge, sonra yuk hizalamasi ve son olarak hiz kontrolu. Bu gosterisli bir calisma degil. Ama bir sonraki sakatliyi onleyen ve gercek, kalici performans kazanimlari icin temel olusturan calismadir.`,
-  },
-  {
-    id: "injury-is-not-the-end",
-    title: "Sakatligin Son Degil — Veri",
-    excerpt: "Vucut sadece iyilesmez. Uyum saglar. Dogru sistem altinda, sizi bir zamanlar sinirlayanlar avantajiniz olur.",
-    image: "/images/hero-2.jpg",
-    date: "3 Nisan 2026",
-    category: "Zihniyet",
-    content: `Cogu sporcu sakatliği bir gerileme olarak gorur. Bir duraklama. Normale donmeden once hayatta kalinacak bir sey. Ancak sakatlik bilgidir. Sistemin tam olarak nerede basarisiz oldugunu ortaya cikarir — yukun nerede biriktigini, kontrolun nerede kaybedildigini, zincirin nerede kirildigi.
-
-REFORGE her sakatliği bir harita olarak ele alir. Bir mahkumiyet degil. Sakatlik gecmisinizi analiz ettigimizde, neyin yanlis gittigine bakmiyoruz — vucudunuzun yapisal oncelikleri hakkinda bize ne soyledigine bakiyoruz. En guclu geri donen sporcular, sakatliklarla savusmayi birakip onlari dinlemeye baslayanlardir.`,
-  },
-  {
-    id: "athlete-mentality",
-    title: "Antrenman ile Yarisma Arasindaki Fark",
-    excerpt: "Antrenman hazirlik. Yarisma baski altinda uygulama. Cogu sporcu bedenlerini antrenman yapar ama ikisi arasindaki bosluğu asla antrenman yapmaz.",
-    image: "/images/hero-3.jpg",
-    date: "27 Mart 2026",
-    category: "Performans",
-    content: `Her rekabetci sporcunun bildigi bir an var — antrenmanda yapabildiginiz ile baski altinda gercekten yaptiginiz arasindaki bosluk. Bu bosluk fiziksel degil. Sistemik. Baglam olmadan antrenman yapmanin, stres altinda aktive olan kontrol sistemlerini insa etmeden kapasite insa etmenin sonucu.
-
-REFORGE fiziksel ve zihinsel hazirliği ayirmaz. Antrenman yapiniz, iyilesme protokolleriniz, gunluk disiplininiz — hepsi ayni sistemi besler. Sistem organize edildiginde, bosluk kapanir. Degilken, hicbir motivasyon sizi dorduncu ceyrekte kurtarmaz.`,
-  },
-  {
-    id: "load-distribution",
-    title: "Yuk Dagilimi: Ağrinizin Gercekten Nereden Geldiği",
-    excerpt: "Sorun nadiren agrinin oldugu yerde. Sorun zincirin basinda kontrolun kaybi.",
-    image: "/images/hero-4.jpg",
-    date: "20 Mart 2026",
-    category: "Sistem",
-    content: `Kosu, ziplama veya durma sirasinda, vucut yuku bir zincir boyunca aktarir: Ayak → Ayak Bilegi → Diz → Kalca → Cekirdek. Bir halka isini yapmazsa, digeri devralir. Vucut zekidir — ancak bu cozum gecicidir. Kisa vadeli telafi uzun vadeli yapisal hasara donusur.
-
-Soru "nerede agriyor?" degil — "yuk nerede birikiyor?" Cogu rehabilitasyon agri bolgesine odaklanir. REFORGE disfonksiyonun kaynagina odaklanir. Dagilimi duzelt ve agri kendini cozer. Agrinin pesinden kos ve sadece goc eder.`,
-  },
-];
-
 const BlogPage = () => {
-  const { t, language } = useLanguage();
   const [selectedPost, setSelectedPost] = useState<string | null>(null);
-  
-  const blogPosts = language === "en" ? blogPostsEn : blogPostsTr;
   const activePost = blogPosts.find((p) => p.id === selectedPost);
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+      <div className="pt-24" />
 
-      {/* Hero Carousel */}
-      <HeroCarousel showControls={false}>
-        <div className="text-center px-4 max-w-4xl">
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
-            className="font-heading text-xs tracking-[0.5em] text-primary uppercase mb-6"
-          >
-            {t("blog.subtitle")}
+      <section className="py-24 border-b border-border">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-heading text-xs tracking-[0.5em] text-primary uppercase mb-4">
+            Insights
           </motion.p>
           <motion.h1
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ delay: 0.1 }}
             className="font-heading text-5xl md:text-7xl font-bold text-foreground uppercase leading-[0.9]"
           >
-            {t("blog.title")}
+            Blog
           </motion.h1>
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="font-body text-muted-foreground text-lg mt-8 max-w-2xl mx-auto"
+            transition={{ delay: 0.3 }}
+            className="font-body text-muted-foreground text-lg mt-8 max-w-2xl leading-relaxed"
           >
-            {t("blog.description")}
+            Thoughts on performance, recovery, and the athlete mentality.
           </motion.p>
         </div>
-      </HeroCarousel>
+      </section>
 
       {activePost ? (
         <section className="py-24">
@@ -147,7 +94,7 @@ const BlogPage = () => {
               onClick={() => setSelectedPost(null)}
               className="font-heading text-xs tracking-[0.2em] uppercase text-primary hover:text-foreground transition-colors mb-8 inline-block"
             >
-              ← {t("blog.back")}
+              ← Back to all posts
             </button>
             <motion.article initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <img src={activePost.image} alt={activePost.title} className="w-full aspect-video object-cover mb-8" />
