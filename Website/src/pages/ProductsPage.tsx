@@ -3,7 +3,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import productSocks from "@/assets/product-socks.jpg";
 import productTshirt from "@/assets/product-tshirt.jpg";
 import { toast } from "@/hooks/use-toast";
@@ -12,7 +13,7 @@ const products = [
   {
     id: "daily-crew",
     name: "Daily Crew Socks",
-    desc: "Everyday athletic sock. Higher cotton ratio, softer feel. Lifestyle + gym ready. The entry point to the REFORGE system.",
+    desc: "Everyday athletic sock. Higher cotton ratio, softer feel. Lifestyle + gym ready. The entry point to the REFORGED system.",
     image: productSocks,
     tag: "Available",
     price: 239,
@@ -25,13 +26,13 @@ const products = [
     desc: "Real performance sock. Low cotton, high durability, built for high-intensity sports. Basketball, tennis, hard-surface sports. Not available to everyone.",
     image: productSocks,
     tag: "Restricted",
-    price: 349,
+    price: 0,
     type: "product" as const,
     details: ["Dense weave — slight resistance on first wear", "Arch support", "8-10% elastane", "Low cotton for performance", "S/M & L/XL"],
   },
   {
     id: "reforge-tee",
-    name: "REFORGE Tee",
+    name: "REFORGED Tee",
     desc: "Sport culture product. Minimal design. The mark of an athlete who chose to come back.",
     image: productTshirt,
     tag: "Coming Soon",
@@ -46,7 +47,7 @@ const programs = [
     id: "prog-performance",
     name: "Performance Package",
     desc: "Athletic performance development. Individualized programming, weekly check-ins, daily communication, tournament prep.",
-    price: 4999,
+    price: 0,
     type: "program" as const,
     features: ["Individualized program design", "Weekly performance check-in", "Daily communication", "Tournament preparation", "Supplement guidance"],
   },
@@ -54,7 +55,7 @@ const programs = [
     id: "prog-rebuild",
     name: "Rebuild Package",
     desc: "Post-injury strengthening. Everything in Performance plus injury analysis, movement pattern restoration, stability chain optimization.",
-    price: 7499,
+    price: 0,
     type: "program" as const,
     features: ["Everything in Performance", "Injury history analysis", "Movement pattern restoration", "Stability chain optimization", "Progressive load management"],
   },
@@ -62,7 +63,7 @@ const programs = [
     id: "prog-return",
     name: "Return Package",
     desc: "Major injury comeback. The full system. Active injury management, sport-specific return protocol, mental discipline framework.",
-    price: 9999,
+    price: 0,
     type: "program" as const,
     features: ["Everything in Rebuild", "Active injury management", "Sport-specific return protocol", "Mental discipline framework", "Priority communication"],
   },
@@ -100,7 +101,7 @@ const ProductsPage = () => {
             transition={{ delay: 0.3 }}
             className="font-body text-muted-foreground text-lg mt-8 max-w-2xl leading-relaxed"
           >
-            Every product carries the REFORGE identity. Not just gear — a statement. The difference is invisible from outside. The user knows.
+            Every product carries the REFORGED identity. Not just gear — a statement. The difference is invisible from outside. The user knows.
           </motion.p>
         </div>
       </section>
@@ -151,7 +152,7 @@ const ProductsPage = () => {
                   )}
                   {product.tag === "Restricted" && (
                     <p className="font-heading text-xs tracking-[0.2em] uppercase text-muted-foreground mt-6">
-                      Available through the REFORGE system only
+                      Available through the REFORGED system only
                     </p>
                   )}
                   {product.tag === "Coming Soon" && (
@@ -186,7 +187,6 @@ const ProductsPage = () => {
                 )}
                 <h3 className="font-heading text-xl font-bold text-foreground uppercase">{prog.name}</h3>
                 <p className="font-body text-muted-foreground text-sm mt-2">{prog.desc}</p>
-                <p className="font-heading text-2xl text-primary mt-4">₺{prog.price.toLocaleString()}<span className="text-sm text-muted-foreground">/mo</span></p>
                 <ul className="mt-6 space-y-2 flex-1">
                   {prog.features.map((f) => (
                     <li key={f} className="flex items-center gap-3">
@@ -195,13 +195,11 @@ const ProductsPage = () => {
                     </li>
                   ))}
                 </ul>
-                <Button
-                  variant={i === 1 ? "accent" : "heroOutline"}
-                  className="mt-6 w-full"
-                  onClick={() => handleAddToCart({ id: prog.id, name: prog.name, price: prog.price, type: prog.type })}
-                >
-                  <ShoppingBag className="mr-2" size={16} /> Add to Basket
-                </Button>
+                <Link to="/apply" className="mt-6 w-full">
+                  <Button variant={i === 1 ? "accent" : "heroOutline"} className="w-full">
+                    Apply <ArrowRight className="ml-2" size={14} />
+                  </Button>
+                </Link>
               </motion.div>
             ))}
           </div>

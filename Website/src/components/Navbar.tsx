@@ -18,8 +18,11 @@ const Navbar = () => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <Link to="/" className="font-heading text-2xl font-bold tracking-wider text-foreground uppercase">
-          RE<span className="text-primary">FORGE</span>
+        <Link to="/" className="flex items-center gap-3">
+          <img src="/images/reforged-icon.png" alt="Reforged" className="h-10 w-auto" />
+          <span className="font-heading text-2xl font-bold tracking-wider uppercase">
+            <span className="text-foreground">RE</span><span className="text-primary">FORGED</span>
+          </span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
