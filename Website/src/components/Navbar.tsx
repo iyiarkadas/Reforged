@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import CartSheet from "@/components/CartSheet";
 
 const navLinks = [
   { label: "System", href: "/system" },
   { label: "Coaching", href: "/coaching" },
   { label: "Products", href: "/products" },
+  { label: "Blog", href: "/blog" },
   { label: "Apply", href: "/apply" },
 ];
 
@@ -36,13 +38,19 @@ const Navbar = () => {
           ))}
         </nav>
 
-        <button
-          className="md:hidden text-foreground"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Toggle menu"
-        >
-          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        <div className="flex items-center gap-4">
+          <CartSheet />
+          <Link to="/auth" className="text-foreground hover:text-primary transition-colors" aria-label="Account">
+            <User size={20} />
+          </Link>
+          <button
+            className="md:hidden text-foreground"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
 
       {mobileOpen && (
@@ -57,6 +65,13 @@ const Navbar = () => {
               {link.label}
             </Link>
           ))}
+          <Link
+            to="/auth"
+            className="block py-3 font-heading text-sm tracking-[0.2em] uppercase text-muted-foreground hover:text-foreground"
+            onClick={() => setMobileOpen(false)}
+          >
+            Account
+          </Link>
         </nav>
       )}
     </header>

@@ -1,18 +1,25 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import heroBg from "@/assets/hero-reforge.jpg";
-import systemImg from "@/assets/system-section.jpg";
+import athleteRunning from "@/assets/athlete-running.jpg";
+import athletePower from "@/assets/athlete-power.jpg";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowRight, Shield, Zap, Target, RotateCcw } from "lucide-react";
 
 const pillars = [
-  { icon: Zap, title: "Performance", desc: "Athletic performance development" },
-  { icon: RotateCcw, title: "Rebuild", desc: "Post-injury strengthening" },
-  { icon: Target, title: "Return", desc: "Return to competitive sport" },
-  { icon: Shield, title: "Mentality", desc: "Athlete discipline & competition culture" },
+  { icon: Zap, title: "Performance", desc: "Athletic performance development for competitive sports." },
+  { icon: RotateCcw, title: "Rebuild", desc: "Structured recovery and rebuilding after injuries." },
+  { icon: Target, title: "Return", desc: "Return to competitive sport — stronger than before." },
+  { icon: Shield, title: "Mentality", desc: "Build the discipline and mindset required to compete." },
 ];
+
+const fadeInUp = {
+  initial: { opacity: 0, y: 30 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true },
+  transition: { duration: 0.6, ease: "easeOut" as const },
+};
 
 const Index = () => {
   return (
@@ -21,8 +28,8 @@ const Index = () => {
 
       {/* Hero */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        <img src={heroBg} alt="Athlete running through light" className="absolute inset-0 w-full h-full object-cover" width={1920} height={1080} />
-        <div className="absolute inset-0 bg-background/70" />
+        <img src={athleteRunning} alt="Athlete in motion" className="absolute inset-0 w-full h-full object-cover" width={1920} height={1080} />
+        <div className="absolute inset-0 bg-background/75" />
         <div className="relative z-10 text-center px-4 max-w-4xl">
           <motion.p
             initial={{ opacity: 0 }}
@@ -38,8 +45,8 @@ const Index = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="font-heading text-6xl md:text-8xl font-bold text-foreground uppercase leading-[0.9]"
           >
-            Stronger Where<br />
-            <span className="text-primary">You Once Broke</span>
+            Still Built Like<br />
+            <span className="text-primary">An Athlete</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0 }}
@@ -47,7 +54,7 @@ const Index = () => {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="font-body text-muted-foreground text-lg mt-8 max-w-xl mx-auto"
           >
-            We turn injured athletes into stronger, smarter, more resilient competitors.
+            A performance and injury return system built for competitive athletes who refuse to step away from competition.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -69,18 +76,18 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Brand Statement */}
+      {/* Problem Statement */}
       <section className="py-24 border-b border-border">
         <div className="container mx-auto px-4 text-center max-w-3xl">
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="font-heading text-3xl md:text-4xl font-semibold text-foreground uppercase leading-tight"
-          >
-            REFORGE is not about recovery.{" "}
-            <span className="text-primary">It's about returning better than before.</span>
-          </motion.p>
+          <motion.div {...fadeInUp}>
+            <p className="font-heading text-3xl md:text-4xl font-semibold text-foreground uppercase leading-tight">
+              You train. You compete.<br />
+              <span className="text-primary">But you're not performing at your real level.</span>
+            </p>
+            <p className="font-body text-muted-foreground mt-6">
+              This isn't a motivation problem. This is a system problem.
+            </p>
+          </motion.div>
         </div>
       </section>
 
@@ -88,9 +95,7 @@ const Index = () => {
       <section className="py-24 bg-card">
         <div className="container mx-auto px-4">
           <motion.h2
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
+            {...fadeInUp}
             className="font-heading text-xs tracking-[0.5em] text-primary uppercase text-center mb-12"
           >
             The Reforge System
@@ -101,7 +106,7 @@ const Index = () => {
                 key={p.title}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
+                transition={{ delay: i * 0.1, duration: 0.5, ease: "easeOut" }}
                 viewport={{ once: true }}
                 className="p-8 border border-border bg-background hover:border-primary/40 transition-colors group"
               >
@@ -121,17 +126,19 @@ const Index = () => {
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
               viewport={{ once: true }}
             >
               <p className="font-heading text-xs tracking-[0.5em] text-primary uppercase mb-4">RF Forge Methodology</p>
               <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground uppercase leading-tight">
-                Control First.<br />Capacity Second.
+                We Don't Fix Injuries.<br />
+                <span className="text-primary">We Reorganize the System.</span>
               </h2>
               <p className="font-body text-muted-foreground mt-6 leading-relaxed">
-                Stability is not just balance training. It's the nervous system, muscle coordination, and joint control working together. Without stability, more strength means faster injury.
+                You don't need more exercises. You need structure. You don't need more motivation. You need direction.
               </p>
               <p className="font-body text-muted-foreground mt-4 leading-relaxed">
-                The body distributes load across a chain: foot, ankle, knee, hip, core. When one link fails, others compensate. Compensation saves performance short-term. It destroys tissue long-term.
+                Your weakness is not the problem. It's unorganized. Reforge turns it into an advantage.
               </p>
               <Link to="/system" className="inline-block mt-8">
                 <Button variant="heroOutline" size="default">
@@ -142,31 +149,34 @@ const Index = () => {
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
               viewport={{ once: true }}
               className="relative"
             >
-              <img src={systemImg} alt="Athlete training" className="w-full aspect-[3/2] object-cover" loading="lazy" width={960} height={640} />
+              <img src={athletePower} alt="Athlete training" className="w-full aspect-[3/2] object-cover" loading="lazy" width={960} height={640} />
               <div className="absolute inset-0 border border-primary/20" />
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* CTA */}
+      {/* Filter */}
       <section className="py-24 bg-card border-t border-border">
         <div className="container mx-auto px-4 text-center max-w-2xl">
-          <p className="font-heading text-xs tracking-[0.5em] text-primary uppercase mb-4">Still Built Like an Athlete</p>
-          <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground uppercase leading-tight">
-            Your Injury Becomes<br />Your Advantage
-          </h2>
-          <p className="font-body text-muted-foreground mt-6">
-            Limited to 10-12 athletes. Apply now and start your transformation.
-          </p>
-          <Link to="/apply" className="inline-block mt-8">
-            <Button variant="accent" size="lg">
-              Start Your Reforge <ArrowRight className="ml-2" size={16} />
-            </Button>
-          </Link>
+          <motion.div {...fadeInUp}>
+            <p className="font-heading text-xs tracking-[0.5em] text-primary uppercase mb-4">Not For Everyone</p>
+            <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground uppercase leading-tight">
+              Your Injury Becomes<br />Your Advantage
+            </h2>
+            <p className="font-body text-muted-foreground mt-6">
+              This is not an open program. We work with a limited number of athletes. If you're not serious, this won't work.
+            </p>
+            <Link to="/apply" className="inline-block mt-8">
+              <Button variant="accent" size="lg">
+                Start Your Reforge <ArrowRight className="ml-2" size={16} />
+              </Button>
+            </Link>
+          </motion.div>
         </div>
       </section>
 
