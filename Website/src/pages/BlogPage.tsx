@@ -17,7 +17,7 @@ const blogPosts = [
     category: "System",
     content: `Performance is often confused with strength. But the real foundation of athletic output is stability — the capacity to maintain control under load. When an athlete jumps, changes direction, or stops suddenly, force must be distributed through the entire kinetic chain. If that distribution fails at any link, compensation begins. Compensation saves performance short-term. It destroys tissue long-term.
 
-The REFORGE system addresses this by building from the base: foot-ankle stability, then unilateral balance, then load alignment, and finally speed control. This isn't glamorous work. But it's the work that prevents the next injury and builds the foundation for real, lasting performance gains.`,
+The REFORGED system addresses this by building from the base: foot-ankle stability, then unilateral balance, then load alignment, and finally speed control. This isn't glamorous work. But it's the work that prevents the next injury and builds the foundation for real, lasting performance gains.`,
   },
   {
     id: "injury-is-not-the-end",
@@ -28,7 +28,7 @@ The REFORGE system addresses this by building from the base: foot-ankle stabilit
     category: "Mentality",
     content: `Most athletes see injury as a setback. A pause. Something to survive before returning to normal. But injury is information. It reveals exactly where the system failed — where load accumulated, where control was lost, where the chain broke.
 
-REFORGE treats every injury as a map. Not a sentence. When we analyze your injury history, we're not looking at what went wrong — we're looking at what your body is telling us about its structural priorities. The athletes who come back strongest are the ones who stop fighting their injuries and start listening to them.`,
+REFORGED treats every injury as a map. Not a sentence. When we analyze your injury history, we're not looking at what went wrong — we're looking at what your body is telling us about its structural priorities. The athletes who come back strongest are the ones who stop fighting their injuries and start listening to them.`,
   },
   {
     id: "athlete-mentality",
@@ -39,7 +39,7 @@ REFORGE treats every injury as a map. Not a sentence. When we analyze your injur
     category: "Performance",
     content: `There's a moment every competitive athlete knows — the gap between what you can do in training and what you actually do under pressure. That gap isn't physical. It's systemic. It's the result of training without context, building capacity without building the control systems that activate under stress.
 
-REFORGE doesn't separate physical and mental preparation. Your training structure, your recovery protocols, your daily discipline — they all feed the same system. When the system is organized, the gap closes. When it's not, no amount of motivation will save you in the fourth quarter.`,
+REFORGED doesn't separate physical and mental preparation. Your training structure, your recovery protocols, your daily discipline — they all feed the same system. When the system is organized, the gap closes. When it's not, no amount of motivation will save you in the fourth quarter.`,
   },
   {
     id: "load-distribution",
@@ -50,7 +50,7 @@ REFORGE doesn't separate physical and mental preparation. Your training structur
     category: "System",
     content: `When running, jumping, or stopping, the body transfers load across a chain: Foot → Ankle → Knee → Hip → Core. If one link doesn't do its job, another takes over. The body is smart — but this solution is temporary. Short-term compensation becomes long-term structural damage.
 
-The question isn't "where does it hurt?" — it's "where is the load accumulating?" Most rehabilitation focuses on the site of pain. REFORGE focuses on the source of dysfunction. Fix the distribution, and the pain resolves itself. Chase the pain, and it simply migrates.`,
+The question isn't "where does it hurt?" — it's "where is the load accumulating?" Most rehabilitation focuses on the site of pain. REFORGED focuses on the source of dysfunction. Fix the distribution, and the pain resolves itself. Chase the pain, and it simply migrates.`,
   },
 ];
 

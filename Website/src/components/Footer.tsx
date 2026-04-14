@@ -7,8 +7,11 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-4 gap-12">
           <div>
-            <h3 className="font-heading text-2xl font-bold uppercase tracking-wider">
-              RE<span className="text-primary">FORGE</span>
+            <div className="flex items-center gap-3">
+              <img src="/images/reforged-logo.png" alt="Reforged" className="h-12 w-auto" />
+            </div>
+            <h3 className="font-heading text-2xl font-bold uppercase tracking-wider mt-3">
+              <span className="text-foreground">RE</span><span className="text-primary">FORGED</span>
             </h3>
             <p className="font-body text-muted-foreground text-sm mt-4 leading-relaxed max-w-xs">
               Athlete management system for competitive athletes.
@@ -39,7 +42,7 @@ const Footer = () => {
                 <Phone size={14} className="text-primary shrink-0" />
                 +90 212 XXX XX XX
               </li>
-              <li>info@reforge.com</li>
+              <li>info@reforged.com</li>
             </ul>
           </div>
           <div>
@@ -53,13 +56,13 @@ const Footer = () => {
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="REFORGE Location - Sarıyer, Istanbul"
+                title="REFORGED Location - Sarıyer, Istanbul"
               />
             </div>
           </div>
         </div>
         <div className="border-t border-border mt-12 pt-6 text-center font-body text-xs text-muted-foreground">
-          © 2026 REFORGE. All rights reserved.
+          © 2026 REFORGED. All rights reserved.
         </div>
       </div>
     </footer>

@@ -64,7 +64,7 @@ const Index = () => {
           >
             <Link to="/apply">
               <Button variant="accent" size="lg">
-                Start Your Reforge <ArrowRight className="ml-2" size={16} />
+                Start Your Journey <ArrowRight className="ml-2" size={16} />
               </Button>
             </Link>
             <Link to="/system">
@@ -98,7 +98,7 @@ const Index = () => {
             {...fadeInUp}
             className="font-heading text-xs tracking-[0.5em] text-primary uppercase text-center mb-12"
           >
-            The Reforge System
+            The Reforged System
           </motion.h2>
           <div className="grid md:grid-cols-4 gap-6">
             {pillars.map((p, i) => (
@@ -129,7 +129,7 @@ const Index = () => {
               transition={{ duration: 0.6, ease: "easeOut" }}
               viewport={{ once: true }}
             >
-              <p className="font-heading text-xs tracking-[0.5em] text-primary uppercase mb-4">RF Forge Methodology</p>
+              <p className="font-heading text-xs tracking-[0.5em] text-primary uppercase mb-4">Reforged Methodology</p>
               <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground uppercase leading-tight">
                 We Don't Fix Injuries.<br />
                 <span className="text-primary">We Reorganize the System.</span>
@@ -138,7 +138,7 @@ const Index = () => {
                 You don't need more exercises. You need structure. You don't need more motivation. You need direction.
               </p>
               <p className="font-body text-muted-foreground mt-4 leading-relaxed">
-                Your weakness is not the problem. It's unorganized. Reforge turns it into an advantage.
+                Your weakness is not the problem. It's unorganized. Reforged turns it into an advantage.
               </p>
               <Link to="/system" className="inline-block mt-8">
                 <Button variant="heroOutline" size="default">
@@ -173,7 +173,7 @@ const Index = () => {
             </p>
             <Link to="/apply" className="inline-block mt-8">
               <Button variant="accent" size="lg">
-                Start Your Reforge <ArrowRight className="ml-2" size={16} />
+                Start Your Journey <ArrowRight className="ml-2" size={16} />
               </Button>
             </Link>
           </motion.div>

@@ -16,7 +16,7 @@ const SystemPage = () => {
       <section className="py-24 border-b border-border">
         <div className="container mx-auto px-4 max-w-4xl">
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-heading text-xs tracking-[0.5em] text-primary uppercase mb-4">
-            RF Forge Protocol
+            Reforged Protocol
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
@@ -32,7 +32,7 @@ const SystemPage = () => {
             transition={{ delay: 0.3 }}
             className="font-body text-muted-foreground text-lg mt-8 max-w-2xl leading-relaxed"
           >
-            Performance isn't just about strength. It's about control under load. REFORGE is built on the principle: stability first, capacity second.
+            Performance isn't just about strength. It's about control under load. REFORGED is built on the principle: stability first, capacity second.
           </motion.p>
         </div>
       </section>
@@ -87,7 +87,7 @@ const SystemPage = () => {
               <p className="font-heading text-xl text-foreground uppercase">
                 "When the body distributes load correctly, performance rises naturally."
               </p>
-              <p className="text-sm text-primary mt-2">— REFORGE Principle</p>
+              <p className="text-sm text-primary mt-2">— REFORGED Principle</p>
             </div>
             <p>The question isn't "where does it hurt?" — it's <span className="text-foreground">"where is the load accumulating?"</span></p>
           </div>
@@ -97,7 +97,7 @@ const SystemPage = () => {
       {/* REFORGE Approach */}
       <section className="py-24">
         <div className="container mx-auto px-4 max-w-3xl">
-          <h2 className="font-heading text-3xl font-bold text-foreground uppercase">The REFORGE Approach</h2>
+          <h2 className="font-heading text-3xl font-bold text-foreground uppercase">The REFORGED Approach</h2>
           <div className="mt-8 grid gap-6">
             {[
               { step: "01", title: "Base Control", desc: "Foot-ankle stability assessment and restoration" },
