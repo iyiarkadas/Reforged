@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Menu, X, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import CartSheet from "@/components/CartSheet";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const navLinks = [
   { label: "System", href: "/system" },
@@ -42,6 +43,7 @@ const Navbar = () => {
         </nav>
 
         <div className="flex items-center gap-4">
+          <ThemeToggle />
           <CartSheet />
           <Link to="/auth" className="text-foreground hover:text-primary transition-colors" aria-label="Account">
             <User size={20} />

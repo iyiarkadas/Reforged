@@ -12,6 +12,7 @@ import ApplyPage from "./pages/ApplyPage.tsx";
 import AuthPage from "./pages/AuthPage.tsx";
 import BlogPage from "./pages/BlogPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import PortalPage from "./pages/PortalPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/apply" element={<ApplyPage />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/blog" element={<BlogPage />} />
+            <Route path="/portal/:section" element={<PortalPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

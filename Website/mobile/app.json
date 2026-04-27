@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "name": "Reforged",
+    "slug": "reforged-mobile",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "assetBundlePatterns": ["**/*"]
+  }
+}

@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -8,14 +9,19 @@ import { ArrowRight, Eye, EyeOff } from "lucide-react";
 type AuthMode = "login" | "signup";
 
 const AuthPage = () => {
+  const navigate = useNavigate();
   const [mode, setMode] = useState<AuthMode>("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
+    const role = mode === "login" && email.trim() === "admin" && password === "password" ? "admin" : "user";
+
+    localStorage.setItem("reforged-session-role", role);
+    sessionStorage.removeItem("reforged-portal-intro-seen");
+    navigate("/portal/dashboard");
   };
 
   return (
@@ -23,18 +29,22 @@ const AuthPage = () => {
       <Navbar />
       <div className="pt-24" />
 
-      <section className="py-24">
-        <div className="container mx-auto px-4 max-w-md">
+      <section className="py-20">
+        <div className="container mx-auto grid gap-12 px-4 lg:grid-cols-[1fr_440px] lg:items-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <p className="font-heading text-xs tracking-[0.5em] text-primary uppercase mb-4 text-center">
-              {mode === "login" ? "Welcome Back" : "Join Reforge"}
-            </p>
-            <h1 className="font-heading text-4xl md:text-5xl font-bold text-foreground uppercase text-center leading-[0.9]">
-              {mode === "login" ? "Log In" : "Create Account"}
+            <p className="font-heading text-xs tracking-[0.5em] text-primary uppercase mb-4">Reforged Portal</p>
+            <h1 className="font-heading text-5xl md:text-7xl font-bold text-foreground uppercase leading-[0.9]">
+              Train, Track,<br />
+              <span className="text-primary">Return Stronger</span>
             </h1>
+            <p className="mt-6 max-w-xl text-muted-foreground">
+              Enter the private athlete platform for trainer scheduling, assigned programs, sport activity tracking,
+              education, and exercise media.
+            </p>
+          </motion.div>
 
-            {/* Toggle */}
-            <div className="flex mt-8 border border-border">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="border border-border bg-card p-6">
+            <div className="flex border border-border">
               <button
                 onClick={() => setMode("login")}
                 className={`flex-1 py-3 font-heading text-sm tracking-[0.2em] uppercase transition-colors ${
@@ -53,45 +63,16 @@ const AuthPage = () => {
               </button>
             </div>
 
-            {submitted && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-6 p-4 border border-primary/30 bg-primary/5 text-center">
-                <p className="font-body text-sm text-foreground">
-                  {mode === "login" ? "Login successful." : "Account created successfully."}
-                </p>
-              </motion.div>
-            )}
-
-            <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-              {mode === "signup" && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="font-heading text-xs tracking-[0.2em] uppercase text-muted-foreground block mb-2">First Name</label>
-                    <input
-                      required
-                      type="text"
-                      className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary transition-colors"
-                      placeholder="First name"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-heading text-xs tracking-[0.2em] uppercase text-muted-foreground block mb-2">Last Name</label>
-                    <input
-                      required
-                      type="text"
-                      className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary transition-colors"
-                      placeholder="Last name"
-                    />
-                  </div>
-                </div>
-              )}
-
+            <form onSubmit={handleSubmit} className="mt-6 space-y-5">
               <div>
                 <label className="font-heading text-xs tracking-[0.2em] uppercase text-muted-foreground block mb-2">Email</label>
                 <input
                   required
-                  type="email"
-                  className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary transition-colors"
-                  placeholder="your@email.com"
+                  type="text"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  className="w-full bg-background border border-border px-4 py-3 text-foreground focus:outline-none focus:border-primary"
+                  placeholder="Email or username"
                 />
               </div>
 
@@ -101,54 +82,22 @@ const AuthPage = () => {
                   <input
                     required
                     type={showPassword ? "text" : "password"}
-                    className="w-full bg-transparent border border-border px-4 py-3 pr-12 font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary transition-colors"
-                    placeholder="••••••••"
-                    minLength={8}
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    className="w-full bg-background border border-border px-4 py-3 pr-12 text-foreground focus:outline-none focus:border-primary"
+                    placeholder="Password"
+                    minLength={mode === "login" ? 1 : 8}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  >
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
               </div>
 
-              {mode === "signup" && (
-                <>
-                  <div>
-                    <label className="font-heading text-xs tracking-[0.2em] uppercase text-muted-foreground block mb-2">Phone (Optional)</label>
-                    <input
-                      type="tel"
-                      className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary transition-colors"
-                      placeholder="+90 5XX XXX XX XX"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-heading text-xs tracking-[0.2em] uppercase text-muted-foreground block mb-2">Instagram (Optional)</label>
-                    <input
-                      type="text"
-                      className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary transition-colors"
-                      placeholder="@yourusername"
-                    />
-                  </div>
-                </>
-              )}
-
-              <Button type="submit" variant="accent" size="lg" className="w-full mt-2">
-                {mode === "login" ? "Log In" : "Create Account"} <ArrowRight className="ml-2" size={16} />
+              <Button type="submit" variant="accent" size="lg" className="w-full">
+                {mode === "login" ? "Login" : "Sign Up"} <ArrowRight className="ml-2" size={16} />
               </Button>
             </form>
-
-            {mode === "login" && (
-              <p className="font-body text-sm text-muted-foreground text-center mt-6">
-                Don't have an account?{" "}
-                <button onClick={() => setMode("signup")} className="text-primary hover:underline">
-                  Sign up
-                </button>
-              </p>
-            )}
           </motion.div>
         </div>
       </section>
