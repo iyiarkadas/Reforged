@@ -3,14 +3,68 @@ import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react"; // Added Loader2 for loading states
+
+// Import Firebase Firestore tools
+import { db } from "@/lib/firebase"; 
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 const ApplyPage = () => {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Controlled form state
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    age: "",
+    sport: "",
+    currentSituation: [] as string[],
+    primaryGoal: [] as string[],
+    injuryHistory: "",
+    commitmentLevel: "",
+    reasonsForApplying: [] as string[],
+    whyNow: "",
+    trainingDays: "",
+    additionalInfo: "",
+  });
+
+  // Handle standard input, select, and textarea changes
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Handle multi-select checkboxes
+  const handleCheckboxChange = (category: "currentSituation" | "primaryGoal" | "reasonsForApplying", option: string) => {
+    setFormData((prev) => {
+      const currentList = prev[category];
+      const updatedList = currentList.includes(option)
+        ? currentList.filter((item) => item !== option)
+        : [...currentList, option];
+      return { ...prev, [category]: updatedList };
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setLoading(true);
+
+    try {
+      // Save data to a "applications" collection in Firestore
+      await addDoc(collection(db, "applications"), {
+        ...formData,
+        age: Number(formData.age), // convert age to number
+        createdAt: serverTimestamp(), // stores submission time automatically
+      });
+
+      setSubmitted(true);
+    } catch (error) {
+      console.error("Error saving application to Firebase:", error);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -61,22 +115,22 @@ const ApplyPage = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="font-heading text-xs tracking-[0.2em] uppercase text-muted-foreground block mb-2">First Name</label>
-                  <input required type="text" className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary transition-colors" placeholder="First name" />
+                  <input required name="firstName" value={formData.firstName} onChange={handleChange} type="text" className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary transition-colors" placeholder="First name" />
                 </div>
                 <div>
                   <label className="font-heading text-xs tracking-[0.2em] uppercase text-muted-foreground block mb-2">Last Name</label>
-                  <input required type="text" className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary transition-colors" placeholder="Last name" />
+                  <input required name="lastName" value={formData.lastName} onChange={handleChange} type="text" className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary transition-colors" placeholder="Last name" />
                 </div>
               </div>
 
               <div>
                 <label className="font-heading text-xs tracking-[0.2em] uppercase text-muted-foreground block mb-2">Age</label>
-                <input required type="number" className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary transition-colors" placeholder="Your age" />
+                <input required name="age" value={formData.age} onChange={handleChange} type="number" className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary transition-colors" placeholder="Your age" />
               </div>
 
               <div>
                 <label className="font-heading text-xs tracking-[0.2em] uppercase text-muted-foreground block mb-2">Sport</label>
-                <select required className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground focus:outline-none focus:border-primary transition-colors">
+                <select required name="sport" value={formData.sport} onChange={handleChange} className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground focus:outline-none focus:border-primary transition-colors">
                   <option value="" className="bg-card">Select your sport</option>
                   <option value="football" className="bg-card">Football</option>
                   <option value="basketball" className="bg-card">Basketball</option>
@@ -91,7 +145,7 @@ const ApplyPage = () => {
                 <div className="space-y-2">
                   {["I train regularly", "I compete", "I've had injuries", "My performance is inconsistent", "I feel below my real level"].map((opt) => (
                     <label key={opt} className="flex items-center gap-3 p-3 border border-border hover:border-primary/30 transition-colors cursor-pointer">
-                      <input type="checkbox" className="accent-primary" />
+                      <input type="checkbox" checked={formData.currentSituation.includes(opt)} onChange={() => handleCheckboxChange("currentSituation", opt)} className="accent-primary" />
                       <span className="font-body text-sm text-foreground/80">{opt}</span>
                     </label>
                   ))}
@@ -103,7 +157,7 @@ const ApplyPage = () => {
                 <div className="space-y-2">
                   {["Return from injury", "Improve performance", "Regain confidence", "Build structure", "Compete at a higher level"].map((opt) => (
                     <label key={opt} className="flex items-center gap-3 p-3 border border-border hover:border-primary/30 transition-colors cursor-pointer">
-                      <input type="checkbox" className="accent-primary" />
+                      <input type="checkbox" checked={formData.primaryGoal.includes(opt)} onChange={() => handleCheckboxChange("primaryGoal", opt)} className="accent-primary" />
                       <span className="font-body text-sm text-foreground/80">{opt}</span>
                     </label>
                   ))}
@@ -112,7 +166,7 @@ const ApplyPage = () => {
 
               <div>
                 <label className="font-heading text-xs tracking-[0.2em] uppercase text-muted-foreground block mb-2">Injury History</label>
-                <select required className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground focus:outline-none focus:border-primary transition-colors">
+                <select required name="injuryHistory" value={formData.injuryHistory} onChange={handleChange} className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground focus:outline-none focus:border-primary transition-colors">
                   <option value="" className="bg-card">Select</option>
                   <option value="none" className="bg-card">No major injuries</option>
                   <option value="minor" className="bg-card">Minor injuries</option>
@@ -123,7 +177,7 @@ const ApplyPage = () => {
 
               <div>
                 <label className="font-heading text-xs tracking-[0.2em] uppercase text-muted-foreground block mb-2">How serious are you?</label>
-                <select required className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground focus:outline-none focus:border-primary transition-colors">
+                <select required name="commitmentLevel" value={formData.commitmentLevel} onChange={handleChange} className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground focus:outline-none focus:border-primary transition-colors">
                   <option value="" className="bg-card">Select commitment level</option>
                   <option value="exploring" className="bg-card">I'm just exploring</option>
                   <option value="interested" className="bg-card">I'm interested</option>
@@ -143,7 +197,7 @@ const ApplyPage = () => {
                     "I want guidance from someone who understands competitive sports",
                   ].map((opt) => (
                     <label key={opt} className="flex items-center gap-3 p-3 border border-border hover:border-primary/30 transition-colors cursor-pointer">
-                      <input type="checkbox" className="accent-primary" />
+                      <input type="checkbox" checked={formData.reasonsForApplying.includes(opt)} onChange={() => handleCheckboxChange("reasonsForApplying", opt)} className="accent-primary" />
                       <span className="font-body text-sm text-foreground/80">{opt}</span>
                     </label>
                   ))}
@@ -153,6 +207,9 @@ const ApplyPage = () => {
               <div>
                 <label className="font-heading text-xs tracking-[0.2em] uppercase text-muted-foreground block mb-2">Why now?</label>
                 <textarea
+                  name="whyNow"
+                  value={formData.whyNow}
+                  onChange={handleChange}
                   className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary transition-colors min-h-[100px] resize-none"
                   placeholder="What made you decide to apply now?"
                 />
@@ -160,7 +217,7 @@ const ApplyPage = () => {
 
               <div>
                 <label className="font-heading text-xs tracking-[0.2em] uppercase text-muted-foreground block mb-2">How many days per week can you train?</label>
-                <select className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground focus:outline-none focus:border-primary transition-colors">
+                <select name="trainingDays" value={formData.trainingDays} onChange={handleChange} className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground focus:outline-none focus:border-primary transition-colors">
                   <option value="" className="bg-card">Select</option>
                   <option value="2-3" className="bg-card">2-3 days</option>
                   <option value="4-5" className="bg-card">4-5 days</option>
@@ -171,13 +228,20 @@ const ApplyPage = () => {
               <div>
                 <label className="font-heading text-xs tracking-[0.2em] uppercase text-muted-foreground block mb-2">Anything else? (Optional)</label>
                 <textarea
+                  name="additionalInfo"
+                  value={formData.additionalInfo}
+                  onChange={handleChange}
                   className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary transition-colors min-h-[100px] resize-none"
                   placeholder="Anything else you want us to know..."
                 />
               </div>
 
-              <Button type="submit" variant="accent" size="lg" className="w-full mt-4">
-                Start Your Reforge <ArrowRight className="ml-2" size={16} />
+              <Button type="submit" variant="accent" size="lg" className="w-full mt-4" disabled={loading}>
+                {loading ? (
+                  <>Sending Application... <Loader2 className="ml-2 animate-spin" size={16} /></>
+                ) : (
+                  <>Start Your Reforge <ArrowRight className="ml-2" size={16} /></>
+                )}
               </Button>
             </form>
           )}
