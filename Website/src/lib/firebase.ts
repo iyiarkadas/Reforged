@@ -1,9 +1,8 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore } from "firebase/firestore"; // 1. Add this import
+import { getAuth } from "firebase/auth";
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore"; // Added document helpers
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBaATpTwFJN3ZhwPwJSwajxgopsSfqRZLM",
   authDomain: "reforged-b8582.firebaseapp.com",
@@ -14,9 +13,45 @@ const firebaseConfig = {
   measurementId: "G-ZQENY9NS30"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-// 2. Initialize Firestore and export 'db' so other files can use it
+export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+export const ADMIN_LIST = [
+  "batursadic@gmail.com",
+  "mur4t3rdogan1999@gmail.com"
+];
+
+export interface InjuryData {
+  type: string;
+  date: string;
+}
+
+export type InjuryMap = Record<string, InjuryData>;
+
+export const saveUserInjuries = async (userId: string, injuries: InjuryMap): Promise<void> => {
+  try {
+    const userRef = doc(db, "users", userId);
+    // { merge: true } ensures we don't accidentally wipe out other user fields (like email or name)
+    await setDoc(userRef, { injuries }, { merge: true });
+  } catch (error) {
+    console.error("Error saving injuries payload to Firestore:", error);
+    throw error;
+  }
+};
+
+export const getUserInjuries = async (userId: string): Promise<InjuryMap | null> => {
+  try {
+    const userRef = doc(db, "users", userId);
+    const docSnap = await getDoc(userRef);
+    
+    if (docSnap.exists() && docSnap.data().injuries) {
+      return docSnap.data().injuries as InjuryMap;
+    }
+  } catch (error) {
+    console.error("Error fetching injuries payload from Firestore:", error);
+  }
+  return null;
+};

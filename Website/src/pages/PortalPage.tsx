@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -16,6 +16,8 @@ import {
   UserCog,
   Video,
 } from "lucide-react";
+import { auth, saveUserInjuries, getUserInjuries, type InjuryMap } from "@/lib/firebase";
+import { BodyMap } from "@/components/BodyMap";
 
 type Role = "user" | "admin";
 type Section = "dashboard" | "schedule" | "programs" | "blogs" | "exercises" | "profile";
@@ -151,6 +153,15 @@ const PortalPage = () => {
           </nav>
 
           <div className="flex items-center gap-3">
+            <Button 
+              variant="heroOutline" 
+              size="sm" 
+              onClick={() => navigate("/admin/applications")}
+              className="border-primary/40 text-primary hover:bg-primary/10 font-heading text-xs uppercase tracking-wider"
+            >
+              Review Applicants
+            </Button>
+
             {role === "admin" && (
               <Button variant="heroOutline" size="sm" onClick={() => setAdminViewAsUser((current) => !current)}>
                 {adminViewAsUser ? "View Admin" : "View As User"}
@@ -158,7 +169,7 @@ const PortalPage = () => {
             )}
             <ThemeToggle />
             <Link to="/portal/profile" aria-label="Profile" className="hidden sm:block">
-              <FitnessAvatar compact />
+              {/* ... your Avatar component */}
             </Link>
             <button onClick={logout} className="text-muted-foreground transition-colors hover:text-primary" aria-label="Log out">
               <LogOut size={19} />
@@ -310,33 +321,156 @@ const ExercisesPage = () => (
   </div>
 );
 
-const ProfilePage = ({ visibleRole }: { visibleRole: Role }) => (
-  <div className="space-y-6">
-    <PortalHero eyebrow="User Info" title="Profile, subscription, and injury status." copy={visibleRole === "admin" ? "Inspect athlete information, plan access, and account status." : "Edit your personal information, avatar status, injuries, and subscription."} />
-    <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
-      <DashboardPanel icon={UserCog} title="Avatar">
-        <div className="flex items-center gap-5">
-          <FitnessAvatar />
-          <div>
-            <p className="font-heading text-xl uppercase">{visibleRole === "admin" ? "Athlete Preview" : "Serkan Y."}</p>
-            <p className="text-sm text-muted-foreground">Left knee support active</p>
+const ProfilePage = ({ visibleRole }: { visibleRole: Role }) => {
+  const [userId, setUserId] = useState<string | null>(null);
+  const [injuries, setInjuries] = useState<InjuryMap>({});
+  const [loading, setLoading] = useState(true);
+
+  // Monitor the genuine Firebase Auth state
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUserId(user.uid);
+      } else {
+        setUserId(null);
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Sync with Firestore only when a legitimate authenticated UID is present
+  useEffect(() => {
+    if (!userId) return;
+
+    const fetchProfileInjuries = async () => {
+      try {
+        setLoading(true);
+        const savedData = await getUserInjuries(userId);
+        if (savedData) {
+          setInjuries(savedData);
+        }
+      } catch (error) {
+        console.error("Firestore sync restriction encountered:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfileInjuries();
+  }, [userId]);
+
+  const handleUpdateInjury = async (partId: string, type: string, date: string) => {
+    if (!userId) return;
+    const updatedMap = {
+      ...injuries,
+      [partId]: { type, date },
+    };
+    setInjuries(updatedMap);
+    await saveUserInjuries(userId, updatedMap);
+  };
+
+  const handleClearInjury = async (partId: string) => {
+    if (!userId) return;
+    const updatedMap = { ...injuries };
+    delete updatedMap[partId];
+    setInjuries(updatedMap);
+    await saveUserInjuries(userId, updatedMap);
+  };
+
+  // Guard Clause: Prevent rule violations if the session is missing
+  if (!loading && !userId) {
+    return (
+      <div className="border border-destructive/30 bg-destructive/5 p-6 text-center">
+        <p className="text-sm text-destructive uppercase tracking-wider font-heading mb-3">
+          Secure Session Required
+        </p>
+        <p className="text-xs text-muted-foreground max-w-md mx-auto mb-4">
+          Your portal security layout rules prohibit writing medical telemetry updates without an active authentication handshake.
+        </p>
+        <Link to="/auth">
+          <Button variant="heroOutline" size="sm">Go to Login Screen</Button>
+        </Link>
+      </div>
+    );
+  }
+
+  const activeTraumaSummary = injuries["left_knee"]
+    ? `Left Knee: ${injuries["left_knee"].type}`
+    : Object.keys(injuries).length > 0
+    ? `${Object.keys(injuries).length} parts flagged under care`
+    : "No acute trauma logged";
+
+  return (
+    <div className="space-y-6">
+      <PortalHero
+        eyebrow="User Info"
+        title="Profile, subscription, and injury status."
+        copy={visibleRole === "admin" ? "Inspect athlete information, plan access, and account status." : "Edit your personal information, avatar status, injuries, and subscription."}
+      />
+      <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
+        <div className="space-y-4">
+          <DashboardPanel icon={UserCog} title="Avatar">
+            <div className="flex items-center gap-5">
+              <FitnessAvatar />
+              <div>
+                <p className="font-heading text-xl uppercase">{visibleRole === "admin" ? "Athlete Preview" : "Serkan Y."}</p>
+                <p className="text-sm text-muted-foreground">Active Tracking Enabled</p>
+              </div>
+            </div>
+          </DashboardPanel>
+
+          <DashboardPanel icon={Activity} title="Status Monitor">
+            <div className="space-y-1 text-xs">
+              <span className="block font-heading uppercase text-muted-foreground tracking-wider">Active Pathology Flag</span>
+              <p className="font-medium text-foreground border border-border bg-background p-2">
+                {loading ? "Syncing core profile logs..." : activeTraumaSummary}
+              </p>
+            </div>
+          </DashboardPanel>
+        </div>
+
+        <DashboardPanel icon={ChevronDown} title="Account Details & Injury Profiling">
+          <div className="grid gap-3 md:grid-cols-2 mb-6">
+            {["Name", "Email", "Primary Sport", "Subscription"].map((field) => (
+              <label key={field} className="block">
+                <span className="mb-2 block font-heading text-xs uppercase tracking-[0.2em] text-muted-foreground">{field}</span>
+                <input
+                  className="w-full border border-border bg-background px-3 py-3 text-sm text-foreground outline-none focus:border-primary"
+                  defaultValue={field === "Subscription" ? "Premium Return Program" : field === "Name" ? "Serkan Y." : ""}
+                  placeholder={field}
+                  disabled={visibleRole === "admin"}
+                />
+              </label>
+            ))}
           </div>
-        </div>
-      </DashboardPanel>
-      <DashboardPanel icon={ChevronDown} title="Account Details">
-        <div className="grid gap-3 md:grid-cols-2">
-          {["Name", "Email", "Primary Sport", "Current Injury", "Subscription", "Billing Status"].map((field) => (
-            <label key={field} className="block">
-              <span className="mb-2 block font-heading text-xs uppercase tracking-[0.2em] text-muted-foreground">{field}</span>
-              <input className="w-full border border-border bg-background px-3 py-3 text-sm text-foreground outline-none focus:border-primary" defaultValue={field === "Subscription" ? "Premium Return Program" : field === "Billing Status" ? "Active" : ""} placeholder={field} />
-            </label>
-          ))}
-        </div>
-        <Button className="mt-5" variant="accent">Save Profile</Button>
-      </DashboardPanel>
+
+          <div className="border-t border-border pt-6">
+            <h3 className="mb-2 font-heading text-sm uppercase tracking-widest text-primary">
+              Anatomical Injury Map Registry
+            </h3>
+            <p className="text-xs text-muted-foreground mb-4">
+              Select or tap body map vector coordinates directly to overlay diagnostic markers, dates, and logs synced immediately to your database profile.
+            </p>
+
+            {loading ? (
+              <div className="h-48 flex items-center justify-center border border-border border-dashed text-sm text-muted-foreground animate-pulse">
+                Retrieving clinical cloud maps...
+              </div>
+            ) : (
+              <BodyMap
+                injuries={injuries}
+                onUpdateInjury={handleUpdateInjury}
+                onClearInjury={handleClearInjury}
+              />
+            )}
+          </div>
+        </DashboardPanel>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const PortalHero = ({ eyebrow, title, copy }: { eyebrow: string; title: string; copy: string }) => (
   <section className="relative overflow-hidden border border-border bg-card p-6 md:p-8">

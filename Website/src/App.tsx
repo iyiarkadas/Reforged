@@ -13,6 +13,7 @@ import AuthPage from "./pages/AuthPage.tsx";
 import BlogPage from "./pages/BlogPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import PortalPage from "./pages/PortalPage.tsx";
+import AdminPage from "./pages/AdminPage.tsx"; 
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,10 @@ const App = () => (
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/portal/:section" element={<PortalPage />} />
+            
+            {/* Open route accessible to everyone inside the system setup */}
+            <Route path="/admin/applications" element={<AdminPage />} />
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

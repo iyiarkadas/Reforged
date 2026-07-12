@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { ShoppingBag, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import productSocks from "@/assets/product-socks.jpg";
+import productSocks from "@/assets/daily-socks.png";
 import productTshirt from "@/assets/product-tshirt.jpg";
 import { toast } from "@/hooks/use-toast";
 
