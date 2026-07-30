@@ -8,6 +8,7 @@ export const themes = {
     muted: "#666666",
     border: "#d6d6d6",
     primary: "#d32222",
+    primarySoft: "#f8dcdc",
     primaryText: "#f5f5f5",
   },
   dark: {
@@ -17,6 +18,7 @@ export const themes = {
     muted: "#a8a8a8",
     border: "#292929",
     primary: "#d32222",
+    primarySoft: "#2a1414",
     primaryText: "#ebebeb",
   },
 };
