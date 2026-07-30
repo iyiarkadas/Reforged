@@ -8,6 +8,7 @@ import { ArrowRight, Check } from "lucide-react";
 const packages = [
   {
     name: "Performance",
+    slug: "performance",
     desc: "Athletic performance development",
     features: [
       "Individualized program design",
@@ -19,6 +20,7 @@ const packages = [
   },
   {
     name: "Rebuild",
+    slug: "rebuild",
     desc: "Post-injury strengthening",
     featured: true,
     features: [
@@ -31,6 +33,7 @@ const packages = [
   },
   {
     name: "Return",
+    slug: "return",
     desc: "Major injury comeback",
     features: [
       "Everything in Rebuild",
@@ -127,7 +130,7 @@ const CoachingPage = () => {
                     </li>
                   ))}
                 </ul>
-                <Link to="/apply" className="mt-8">
+                <Link to={`/apply?program=${pkg.slug}`} className="mt-8">
                   <Button variant={pkg.featured ? "accent" : "heroOutline"} className="w-full">
                     Apply <ArrowRight className="ml-2" size={14} />
                   </Button>

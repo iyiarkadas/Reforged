@@ -1,14 +1,23 @@
 import { useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Facebook, Linkedin, Mail } from "lucide-react";
 
 // Added Firestore tools along with standard authentication imports
 import { auth, db } from "@/lib/firebase";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import {
+  FacebookAuthProvider,
+  GoogleAuthProvider,
+  OAuthProvider,
+  sendEmailVerification,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 
 type AuthMode = "login" | "signup";
@@ -75,16 +84,52 @@ const AuthPage = () => {
         await setDoc(doc(db, "users", uid), {
           email: cleanedEmail,
           role: finalRole,
+          emailVerified: userCredential.user.emailVerified,
           createdAt: new Date().toISOString()
         });
+        await sendEmailVerification(userCredential.user);
       }
 
       // Save role authorization parameters directly into localStorage
       localStorage.setItem("reforged-session-role", finalRole);
       
       sessionStorage.removeItem("reforged-portal-intro-seen");
-      navigate("/portal/dashboard");
+      navigate(finalRole === "admin" ? "/portal/dashboard" : "/products");
       
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message.replace("Firebase: ", ""));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSocialAuth = async (providerName: "google" | "linkedin" | "facebook") => {
+    setError(null);
+    setSuccessMessage(null);
+    setLoading(true);
+
+    try {
+      const provider =
+        providerName === "google"
+          ? new GoogleAuthProvider()
+          : providerName === "facebook"
+          ? new FacebookAuthProvider()
+          : new OAuthProvider("oidc.linkedin");
+      const credential = await signInWithPopup(auth, provider);
+      const cleanedEmail = credential.user.email?.trim().toLowerCase() || "";
+      const finalRole = ADMIN_LIST.includes(cleanedEmail) ? "admin" : "user";
+
+      await setDoc(doc(db, "users", credential.user.uid), {
+        email: cleanedEmail,
+        role: finalRole,
+        provider: providerName,
+        emailVerified: credential.user.emailVerified,
+        createdAt: new Date().toISOString(),
+      }, { merge: true });
+      localStorage.setItem("reforged-session-role", finalRole);
+      sessionStorage.removeItem("reforged-portal-intro-seen");
+      navigate(finalRole === "admin" ? "/portal/dashboard" : "/products");
     } catch (err: any) {
       console.error(err);
       setError(err.message.replace("Firebase: ", ""));
@@ -155,6 +200,24 @@ const AuthPage = () => {
                 Sign Up
               </button>
             </div>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              <Button type="button" variant="heroOutline" onClick={() => handleSocialAuth("google")} disabled={loading}>
+                <Mail className="mr-2" size={15} /> Google
+              </Button>
+              <Button type="button" variant="heroOutline" onClick={() => handleSocialAuth("linkedin")} disabled={loading}>
+                <Linkedin className="mr-2" size={15} /> LinkedIn
+              </Button>
+              <Button type="button" variant="heroOutline" onClick={() => handleSocialAuth("facebook")} disabled={loading}>
+                <Facebook className="mr-2" size={15} /> Facebook
+              </Button>
+            </div>
+
+            {mode === "signup" && (
+              <div className="mt-4 border border-primary/20 bg-primary/5 p-3 text-sm text-muted-foreground">
+                For full athlete intake, injury history, and date of birth, use the dedicated <Link to="/signup" className="text-primary">sign-up page</Link>.
+              </div>
+            )}
 
             {/* Notification Messages */}
             {error && (

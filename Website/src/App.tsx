@@ -10,10 +10,12 @@ import CoachingPage from "./pages/CoachingPage.tsx";
 import ProductsPage from "./pages/ProductsPage.tsx";
 import ApplyPage from "./pages/ApplyPage.tsx";
 import AuthPage from "./pages/AuthPage.tsx";
+import SignupPage from "./pages/SignupPage.tsx";
 import BlogPage from "./pages/BlogPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import PortalPage from "./pages/PortalPage.tsx";
 import AdminPage from "./pages/AdminPage.tsx"; 
+import EditAccountPage from "./pages/EditAccountPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -31,8 +33,10 @@ const App = () => (
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/apply" element={<ApplyPage />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/signup" element={<SignupPage />} />
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/portal/:section" element={<PortalPage />} />
+            <Route path="/account/edit" element={<EditAccountPage />} />
             
             {/* Open route accessible to everyone inside the system setup */}
             <Route path="/admin/applications" element={<AdminPage />} />

@@ -9,14 +9,18 @@ import {
   CalendarDays,
   ChevronDown,
   Dumbbell,
+  Edit3,
   Home,
   LogOut,
   Play,
   ShieldCheck,
+  Store,
+  Target,
   UserCog,
   Video,
+  Zap,
 } from "lucide-react";
-import { auth, saveUserInjuries, getUserInjuries, type InjuryMap } from "@/lib/firebase";
+import { auth, saveUserInjuries, getUserInjuries, getUserProfile, type InjuryMap, type UserProfile } from "@/lib/firebase";
 import { BodyMap } from "@/components/BodyMap";
 
 type Role = "user" | "admin";
@@ -41,6 +45,16 @@ const activityLog: Record<number, { label: string; tone: string }> = {
   18: { label: "Game", tone: "bg-primary text-primary-foreground" },
   23: { label: "Bike", tone: "bg-secondary text-foreground" },
   27: { label: "Recovery", tone: "bg-primary/15 text-primary" },
+};
+
+const activityDetails: Record<number, { label: string; load: number; readiness: number; focus: string; notes: string }> = {
+  2: { label: "Run", load: 68, readiness: 82, focus: "Aerobic rhythm", notes: "Easy mileage with knee response check after 24 hours." },
+  5: { label: "PT", load: 45, readiness: 76, focus: "Strength assessment", notes: "Single-leg force screen and manual range check." },
+  9: { label: "Lift", load: 72, readiness: 84, focus: "Posterior chain", notes: "Progressive loading with controlled tempo work." },
+  14: { label: "Mobility", load: 28, readiness: 88, focus: "Hip access", notes: "Low-intensity regeneration and tissue prep." },
+  18: { label: "Game", load: 91, readiness: 79, focus: "Competition exposure", notes: "Minutes capped; response tracked for next block." },
+  23: { label: "Bike", load: 52, readiness: 86, focus: "Conditioning", notes: "Non-impact conditioning while maintaining output." },
+  27: { label: "Recovery", load: 18, readiness: 92, focus: "Regeneration", notes: "Breathing, mobility, and soreness audit." },
 };
 
 const programs = [
@@ -94,6 +108,7 @@ const PortalPage = () => {
   const logout = () => {
     localStorage.removeItem("reforged-session-role");
     sessionStorage.removeItem("reforged-portal-intro-seen");
+    auth.signOut();
     navigate("/auth");
   };
 
@@ -153,6 +168,15 @@ const PortalPage = () => {
           </nav>
 
           <div className="flex items-center gap-3">
+            <Button 
+              variant="heroOutline" 
+              size="sm" 
+              onClick={() => navigate("/products")}
+              className="border-primary/40 text-primary hover:bg-primary/10 font-heading text-xs uppercase tracking-wider"
+            >
+              <Store className="mr-2" size={15} /> Store
+            </Button>
+
             <Button 
               variant="heroOutline" 
               size="sm" 
@@ -322,8 +346,10 @@ const ExercisesPage = () => (
 );
 
 const ProfilePage = ({ visibleRole }: { visibleRole: Role }) => {
+  const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
   const [injuries, setInjuries] = useState<InjuryMap>({});
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Monitor the genuine Firebase Auth state
@@ -348,9 +374,11 @@ const ProfilePage = ({ visibleRole }: { visibleRole: Role }) => {
       try {
         setLoading(true);
         const savedData = await getUserInjuries(userId);
+        const savedProfile = await getUserProfile(userId);
         if (savedData) {
           setInjuries(savedData);
         }
+        setProfile(savedProfile);
       } catch (error) {
         console.error("Firestore sync restriction encountered:", error);
       } finally {
@@ -432,21 +460,24 @@ const ProfilePage = ({ visibleRole }: { visibleRole: Role }) => {
         </div>
 
         <DashboardPanel icon={ChevronDown} title="Account Details & Injury Profiling">
-          <div className="grid gap-3 md:grid-cols-2 mb-6">
-            {["Name", "Email", "Primary Sport", "Subscription"].map((field) => (
-              <label key={field} className="block">
-                <span className="mb-2 block font-heading text-xs uppercase tracking-[0.2em] text-muted-foreground">{field}</span>
-                <input
-                  className="w-full border border-border bg-background px-3 py-3 text-sm text-foreground outline-none focus:border-primary"
-                  defaultValue={field === "Subscription" ? "Premium Return Program" : field === "Name" ? "Serkan Y." : ""}
-                  placeholder={field}
-                  disabled={visibleRole === "admin"}
-                />
-              </label>
-            ))}
-          </div>
+          <div>
+            <div className="mb-6 grid gap-3 md:grid-cols-2">
+              {[
+                ["Name", `${profile?.firstName || "Serkan"} ${profile?.lastName || "Y."}`],
+                ["Email", profile?.email || auth.currentUser?.email || ""],
+                ["Primary Sport", profile?.primarySport || "Soccer"],
+                ["Subscription", profile?.preferredProgram ? `${profile.preferredProgram} Program` : "Premium Return Program"],
+              ].map(([field, value]) => (
+                <div key={field} className="border border-border bg-background p-3">
+                  <span className="mb-2 block font-heading text-xs uppercase tracking-[0.2em] text-muted-foreground">{field}</span>
+                  <p className="min-h-6 text-sm text-foreground">{value}</p>
+                </div>
+              ))}
+            </div>
+            <Button type="button" variant="heroOutline" className="mb-6" onClick={() => navigate("/account/edit")}>
+              <Edit3 className="mr-2" size={16} /> Edit User Information
+            </Button>
 
-          <div className="border-t border-border pt-6">
             <h3 className="mb-2 font-heading text-sm uppercase tracking-widest text-primary">
               Anatomical Injury Map Registry
             </h3>
@@ -502,22 +533,74 @@ const DashboardPanel = ({
 );
 
 const CalendarGrid = () => (
-  <div className="grid grid-cols-7 border-l border-t border-border">
-    {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
-      <div key={day} className="border-b border-r border-border p-2 text-xs text-muted-foreground">
-        {day}
+  <InteractiveCalendar />
+);
+
+const InteractiveCalendar = () => {
+  const [selectedDay, setSelectedDay] = useState(18);
+  const selected = activityDetails[selectedDay] || {
+    label: "Open day",
+    load: 0,
+    readiness: 90,
+    focus: "No assigned activity",
+    notes: "Use this day for optional mobility, walking, or coach-requested logging.",
+  };
+
+  return (
+    <div className="grid gap-5 lg:grid-cols-[1fr_280px]">
+      <div className="grid grid-cols-7 border-l border-t border-border">
+        {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
+          <div key={day} className="border-b border-r border-border p-2 text-xs text-muted-foreground">
+            {day}
+          </div>
+        ))}
+        {calendarDays.map((day) => {
+          const isSelected = selectedDay === day;
+          return (
+            <button
+              key={day}
+              type="button"
+              onClick={() => setSelectedDay(day)}
+              className={`min-h-20 border-b border-r border-border p-2 text-left transition-colors hover:bg-primary/10 ${
+                isSelected ? "bg-primary/15 ring-1 ring-inset ring-primary" : ""
+              }`}
+            >
+              <p className="font-heading text-sm">{day}</p>
+              {activityLog[day] && (
+                <p className={`mt-3 inline-flex px-2 py-1 text-xs ${activityLog[day].tone}`}>
+                  {activityLog[day].label}
+                </p>
+              )}
+            </button>
+          );
+        })}
       </div>
-    ))}
-    {calendarDays.map((day) => (
-      <div key={day} className="min-h-20 border-b border-r border-border p-2">
-        <p className="font-heading text-sm">{day}</p>
-        {activityLog[day] && (
-          <p className={`mt-3 inline-flex px-2 py-1 text-xs ${activityLog[day].tone}`}>
-            {activityLog[day].label}
-          </p>
-        )}
+      <div className="border border-border bg-background p-4">
+        <p className="font-heading text-xs uppercase tracking-[0.25em] text-primary">Day {selectedDay}</p>
+        <h3 className="mt-2 font-heading text-2xl uppercase">{selected.label}</h3>
+        <p className="mt-2 text-sm text-muted-foreground">{selected.notes}</p>
+        <div className="mt-5 space-y-4">
+          <ActivityMeter icon={Zap} label="Training Load" value={selected.load} />
+          <ActivityMeter icon={Target} label="Readiness" value={selected.readiness} />
+        </div>
+        <p className="mt-5 border border-border bg-card p-3 text-sm">
+          <span className="font-heading text-xs uppercase tracking-[0.2em] text-muted-foreground">Focus</span><br />
+          {selected.focus}
+        </p>
       </div>
-    ))}
+    </div>
+  );
+};
+
+const ActivityMeter = ({ icon: Icon, label, value }: { icon: typeof Zap; label: string; value: number }) => (
+  <div>
+    <div className="mb-2 flex items-center justify-between text-xs uppercase tracking-[0.2em] text-muted-foreground">
+      <span className="flex items-center gap-2"><Icon size={14} className="text-primary" /> {label}</span>
+      <span>{value}%</span>
+    </div>
+    <div className="h-2 bg-card">
+      <div className="h-full bg-primary transition-all" style={{ width: `${value}%` }} />
+    </div>
   </div>
 );
 

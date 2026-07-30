@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,8 @@ import { db } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 const ApplyPage = () => {
+  const [searchParams] = useSearchParams();
+  const selectedProgram = searchParams.get("program");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -26,6 +29,7 @@ const ApplyPage = () => {
     reasonsForApplying: [] as string[],
     whyNow: "",
     trainingDays: "",
+    selectedProgram: selectedProgram && ["performance", "rebuild", "return"].includes(selectedProgram) ? selectedProgram : "",
     additionalInfo: "",
   });
 
@@ -92,6 +96,11 @@ const ApplyPage = () => {
             className="font-body text-muted-foreground text-lg mt-8 max-w-2xl leading-relaxed"
           >
             This is not an open program. We work with a limited number of athletes. Not everyone gets accepted.
+            {formData.selectedProgram && (
+              <span className="mt-4 block border border-primary/30 bg-primary/10 p-4 font-heading text-sm uppercase tracking-[0.2em] text-primary">
+                Selected path: {formData.selectedProgram}
+              </span>
+            )}
           </motion.p>
         </div>
       </section>
@@ -126,6 +135,16 @@ const ApplyPage = () => {
               <div>
                 <label className="font-heading text-xs tracking-[0.2em] uppercase text-muted-foreground block mb-2">Age</label>
                 <input required name="age" value={formData.age} onChange={handleChange} type="number" className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary transition-colors" placeholder="Your age" />
+              </div>
+
+              <div>
+                <label className="font-heading text-xs tracking-[0.2em] uppercase text-muted-foreground block mb-2">Program Path</label>
+                <select required name="selectedProgram" value={formData.selectedProgram} onChange={handleChange} className="w-full bg-transparent border border-border px-4 py-3 font-body text-foreground focus:outline-none focus:border-primary transition-colors">
+                  <option value="" className="bg-card">Select program</option>
+                  <option value="performance" className="bg-card">Performance</option>
+                  <option value="rebuild" className="bg-card">Rebuild</option>
+                  <option value="return" className="bg-card">Return</option>
+                </select>
               </div>
 
               <div>

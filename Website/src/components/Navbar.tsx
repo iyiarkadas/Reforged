@@ -1,8 +1,9 @@
-import { useState } from "react";
-import { Menu, X, User } from "lucide-react";
+import { useEffect, useState } from "react";
+import { LayoutDashboard, Menu, X, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import CartSheet from "@/components/CartSheet";
 import ThemeToggle from "@/components/ThemeToggle";
+import { auth } from "@/lib/firebase";
 
 const navLinks = [
   { label: "System", href: "/system" },
@@ -14,7 +15,13 @@ const navLinks = [
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => setIsLoggedIn(!!user));
+    return () => unsubscribe();
+  }, []);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -45,7 +52,12 @@ const Navbar = () => {
         <div className="flex items-center gap-4">
           <ThemeToggle />
           <CartSheet />
-          <Link to="/auth" className="text-foreground hover:text-primary transition-colors" aria-label="Account">
+          {isLoggedIn && (
+            <Link to="/portal/dashboard" className="hidden items-center gap-2 border border-primary/40 px-3 py-2 font-heading text-xs uppercase tracking-[0.16em] text-primary transition-colors hover:bg-primary hover:text-primary-foreground sm:inline-flex">
+              <LayoutDashboard size={15} /> Dashboard
+            </Link>
+          )}
+          <Link to={isLoggedIn ? "/portal/profile" : "/auth"} className="text-foreground hover:text-primary transition-colors" aria-label="Account">
             <User size={20} />
           </Link>
           <button
@@ -71,11 +83,11 @@ const Navbar = () => {
             </Link>
           ))}
           <Link
-            to="/auth"
+            to={isLoggedIn ? "/portal/dashboard" : "/auth"}
             className="block py-3 font-heading text-sm tracking-[0.2em] uppercase text-muted-foreground hover:text-foreground"
             onClick={() => setMobileOpen(false)}
           >
-            Account
+            {isLoggedIn ? "Dashboard" : "Account"}
           </Link>
         </nav>
       )}

@@ -45,6 +45,7 @@ const products = [
 const programs = [
   {
     id: "prog-performance",
+    slug: "performance",
     name: "Performance Package",
     desc: "Athletic performance development. Individualized programming, weekly check-ins, daily communication, tournament prep.",
     price: 0,
@@ -53,6 +54,7 @@ const programs = [
   },
   {
     id: "prog-rebuild",
+    slug: "rebuild",
     name: "Rebuild Package",
     desc: "Post-injury strengthening. Everything in Performance plus injury analysis, movement pattern restoration, stability chain optimization.",
     price: 0,
@@ -61,6 +63,7 @@ const programs = [
   },
   {
     id: "prog-return",
+    slug: "return",
     name: "Return Package",
     desc: "Major injury comeback. The full system. Active injury management, sport-specific return protocol, mental discipline framework.",
     price: 0,
@@ -103,6 +106,31 @@ const ProductsPage = () => {
           >
             Every product carries the REFORGED identity. Not just gear — a statement. The difference is invisible from outside. The user knows.
           </motion.p>
+        </div>
+      </section>
+
+      <section className="border-b border-border py-20">
+        <div className="container mx-auto grid gap-10 px-4 lg:grid-cols-[0.85fr_1.15fr]">
+          <div>
+            <p className="mb-4 font-heading text-xs uppercase tracking-[0.5em] text-primary">Company System</p>
+            <h2 className="font-heading text-4xl font-bold uppercase leading-none text-foreground md:text-5xl">
+              Built for the athlete between pain and performance.
+            </h2>
+          </div>
+          <div className="space-y-5 text-muted-foreground">
+            <p>
+              Reforged is a performance company for athletes who do not want their injury to become their identity. The work starts with clear intake,
+              a body-map injury record, and a realistic view of sport history, then turns that information into coaching decisions.
+            </p>
+            <p>
+              The product line is intentionally connected to the system: daily gear for consistency, restricted performance gear for athletes inside
+              the program, and coaching packages that address movement, rebuilding capacity, regeneration, confidence, and return demands.
+            </p>
+            <p>
+              Coming back is rarely a straight line. The goal is to reduce confusion, track the details that matter, and give every athlete a visible
+              path from assessment to progressive exposure to game-ready performance.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -195,7 +223,7 @@ const ProductsPage = () => {
                     </li>
                   ))}
                 </ul>
-                <Link to="/apply" className="mt-6 w-full">
+                <Link to={`/apply?program=${prog.slug}`} className="mt-6 w-full">
                   <Button variant={i === 1 ? "accent" : "heroOutline"} className="w-full">
                     Apply <ArrowRight className="ml-2" size={14} />
                   </Button>

@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore"; // Added document helpers
+import { getFirestore, doc, setDoc, getDoc, addDoc, collection, serverTimestamp } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBaATpTwFJN3ZhwPwJSwajxgopsSfqRZLM",
@@ -31,6 +31,21 @@ export interface InjuryData {
 
 export type InjuryMap = Record<string, InjuryData>;
 
+export interface UserProfile {
+  firstName?: string;
+  lastName?: string;
+  dateOfBirth?: string;
+  email?: string;
+  phone?: string;
+  primarySport?: string;
+  sportHistory?: string;
+  competitionLevel?: string;
+  goals?: string;
+  preferredProgram?: string;
+  emergencyContact?: string;
+  injuries?: InjuryMap;
+}
+
 export const saveUserInjuries = async (userId: string, injuries: InjuryMap): Promise<void> => {
   try {
     const userRef = doc(db, "users", userId);
@@ -54,4 +69,40 @@ export const getUserInjuries = async (userId: string): Promise<InjuryMap | null>
     console.error("Error fetching injuries payload from Firestore:", error);
   }
   return null;
+};
+
+export const getUserProfile = async (userId: string): Promise<UserProfile | null> => {
+  try {
+    const userRef = doc(db, "users", userId);
+    const docSnap = await getDoc(userRef);
+
+    if (docSnap.exists()) {
+      return docSnap.data() as UserProfile;
+    }
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+  }
+  return null;
+};
+
+export const saveUserProfile = async (userId: string, profile: UserProfile): Promise<void> => {
+  await setDoc(doc(db, "users", userId), profile, { merge: true });
+};
+
+export const queueProfileChangeEmail = async (payload: {
+  userId: string;
+  to: string;
+  changedFields: string[];
+}): Promise<void> => {
+  await addDoc(collection(db, "mail"), {
+    to: payload.to,
+    template: {
+      name: "profile-change-confirmation",
+      data: {
+        changedFields: payload.changedFields.join(", "),
+      },
+    },
+    userId: payload.userId,
+    createdAt: serverTimestamp(),
+  });
 };
