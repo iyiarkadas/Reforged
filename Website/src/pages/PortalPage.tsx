@@ -9,12 +9,10 @@ import {
   CalendarDays,
   ChevronDown,
   Dumbbell,
-  Edit3,
   Home,
   LogOut,
   Play,
-  ShieldCheck,
-  Store,
+  Save,
   Target,
   UserCog,
   Video,
@@ -89,6 +87,20 @@ const PortalPage = () => {
   const [role, setRole] = useState<Role>(() => (localStorage.getItem("reforged-session-role") === "admin" ? "admin" : "user"));
   const [adminViewAsUser, setAdminViewAsUser] = useState(false);
   const [showIntro, setShowIntro] = useState(() => sessionStorage.getItem("reforged-portal-intro-seen") !== "true");
+  
+  // Track authenticated user's email
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUserEmail(user.email);
+      } else {
+        setUserEmail(null);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (!showIntro) return;
@@ -115,6 +127,9 @@ const PortalPage = () => {
   if (!sections.some((item) => item.id === section)) {
     return <Navigate to="/portal/dashboard" replace />;
   }
+
+  // Strictly permit "Review Applicants" button only for mur4t3rdogan1999@gmail.com
+  const isTargetAdmin = userEmail?.toLowerCase() === "mur4t3rdogan1999@gmail.com";
 
   return (
     <div className="min-h-screen overflow-hidden bg-background text-foreground">
@@ -168,23 +183,16 @@ const PortalPage = () => {
           </nav>
 
           <div className="flex items-center gap-3">
-            <Button 
-              variant="heroOutline" 
-              size="sm" 
-              onClick={() => navigate("/products")}
-              className="border-primary/40 text-primary hover:bg-primary/10 font-heading text-xs uppercase tracking-wider"
-            >
-              <Store className="mr-2" size={15} /> Store
-            </Button>
-
-            <Button 
-              variant="heroOutline" 
-              size="sm" 
-              onClick={() => navigate("/admin/applications")}
-              className="border-primary/40 text-primary hover:bg-primary/10 font-heading text-xs uppercase tracking-wider"
-            >
-              Review Applicants
-            </Button>
+            {isTargetAdmin && (
+              <Button 
+                variant="heroOutline" 
+                size="sm" 
+                onClick={() => navigate("/admin/applications")}
+                className="border-primary/40 text-primary hover:bg-primary/10 font-heading text-xs uppercase tracking-wider"
+              >
+                Review Applicants
+              </Button>
+            )}
 
             {role === "admin" && (
               <Button variant="heroOutline" size="sm" onClick={() => setAdminViewAsUser((current) => !current)}>
@@ -192,9 +200,6 @@ const PortalPage = () => {
               </Button>
             )}
             <ThemeToggle />
-            <Link to="/portal/profile" aria-label="Profile" className="hidden sm:block">
-              {/* ... your Avatar component */}
-            </Link>
             <button onClick={logout} className="text-muted-foreground transition-colors hover:text-primary" aria-label="Log out">
               <LogOut size={19} />
             </button>
@@ -208,27 +213,7 @@ const PortalPage = () => {
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-[1600px] gap-6 px-4 py-6 xl:grid-cols-[260px_1fr]">
-        <aside className="hidden border border-border bg-card p-5 xl:block">
-          <div className="flex items-center gap-4">
-            <FitnessAvatar />
-            <div>
-              <p className="font-heading text-xl uppercase">{visibleRole === "admin" ? "Coach Admin" : "Serkan Y."}</p>
-              <p className="text-sm text-muted-foreground">{visibleRole === "admin" ? "Performance staff" : "Soccer athlete"}</p>
-            </div>
-          </div>
-          <div className="mt-6 space-y-3 text-sm text-muted-foreground">
-            <p className="flex items-center gap-2">
-              <ShieldCheck size={16} className="text-primary" />
-              {visibleRole === "admin" ? "16 assigned athletes" : "Left knee: monitored"}
-            </p>
-            <p className="flex items-center gap-2">
-              <Activity size={16} className="text-primary" />
-              {visibleRole === "admin" ? "3 program updates due" : "Current phase: rebuild"}
-            </p>
-          </div>
-        </aside>
-
+      <main className="mx-auto grid max-w-[1600px] gap-6 px-4 py-6 xl:grid-cols-[1fr]">
         <motion.section
           key={activeSection + visibleRole}
           initial={{ opacity: 0, y: 12 }}
@@ -349,24 +334,36 @@ const ProfilePage = ({ visibleRole }: { visibleRole: Role }) => {
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
   const [injuries, setInjuries] = useState<InjuryMap>({});
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [pendingInjuries, setPendingInjuries] = useState<InjuryMap>({});
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Monitor the genuine Firebase Auth state
+  const [profile, setProfile] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    profilePic: "",
+  });
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         setUserId(user.uid);
+        setProfile((prev) => ({
+          ...prev,
+          email: user.email || "",
+          firstName: user.displayName?.split(" ")[0] || "",
+          lastName: user.displayName?.split(" ")[1] || "",
+          profilePic: user.photoURL || "",
+        }));
       } else {
         setUserId(null);
         setLoading(false);
       }
     });
-
     return () => unsubscribe();
   }, []);
 
-  // Sync with Firestore only when a legitimate authenticated UID is present
   useEffect(() => {
     if (!userId) return;
 
@@ -377,10 +374,17 @@ const ProfilePage = ({ visibleRole }: { visibleRole: Role }) => {
         const savedProfile = await getUserProfile(userId);
         if (savedData) {
           setInjuries(savedData);
+          setPendingInjuries(savedData);
         }
-        setProfile(savedProfile);
+        if (savedProfile) {
+          setProfile((prev) => ({
+            ...prev,
+            firstName: savedProfile.firstName || prev.firstName,
+            lastName: savedProfile.lastName || prev.lastName,
+          }));
+        }
       } catch (error) {
-        console.error("Firestore sync restriction encountered:", error);
+        console.error("Firestore sync error:", error);
       } finally {
         setLoading(false);
       }
@@ -389,34 +393,38 @@ const ProfilePage = ({ visibleRole }: { visibleRole: Role }) => {
     fetchProfileInjuries();
   }, [userId]);
 
-  const handleUpdateInjury = async (partId: string, type: string, date: string) => {
-    if (!userId) return;
-    const updatedMap = {
-      ...injuries,
+  const handleStageInjury = (partId: string, type: string, date: string) => {
+    setPendingInjuries((prev) => ({
+      ...prev,
       [partId]: { type, date },
-    };
-    setInjuries(updatedMap);
-    await saveUserInjuries(userId, updatedMap);
+    }));
   };
 
-  const handleClearInjury = async (partId: string) => {
+  const handleStageClear = (partId: string) => {
+    setPendingInjuries((prev) => {
+      const updated = { ...prev };
+      delete updated[partId];
+      return updated;
+    });
+  };
+
+  const handleSaveToDatabase = async () => {
     if (!userId) return;
-    const updatedMap = { ...injuries };
-    delete updatedMap[partId];
-    setInjuries(updatedMap);
-    await saveUserInjuries(userId, updatedMap);
+    setIsSaving(true);
+    try {
+      await saveUserInjuries(userId, pendingInjuries);
+      setInjuries(pendingInjuries);
+    } catch (error) {
+      console.error("Failed to save updates:", error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  // Guard Clause: Prevent rule violations if the session is missing
   if (!loading && !userId) {
     return (
-      <div className="border border-destructive/30 bg-destructive/5 p-6 text-center">
-        <p className="text-sm text-destructive uppercase tracking-wider font-heading mb-3">
-          Secure Session Required
-        </p>
-        <p className="text-xs text-muted-foreground max-w-md mx-auto mb-4">
-          Your portal security layout rules prohibit writing medical telemetry updates without an active authentication handshake.
-        </p>
+      <div className="border border-destructive/30 bg-destructive/5 p-6 text-center max-w-md mx-auto">
+        <p className="text-sm text-destructive uppercase tracking-wider font-heading mb-3">Secure Session Required</p>
         <Link to="/auth">
           <Button variant="heroOutline" size="sm">Go to Login Screen</Button>
         </Link>
@@ -424,80 +432,108 @@ const ProfilePage = ({ visibleRole }: { visibleRole: Role }) => {
     );
   }
 
-  const activeTraumaSummary = injuries["left_knee"]
-    ? `Left Knee: ${injuries["left_knee"].type}`
-    : Object.keys(injuries).length > 0
-    ? `${Object.keys(injuries).length} parts flagged under care`
-    : "No acute trauma logged";
+  const activeTraumaCount = Object.keys(pendingInjuries).length;
+  const hasChanges = JSON.stringify(injuries) !== JSON.stringify(pendingInjuries);
 
   return (
     <div className="space-y-6">
       <PortalHero
         eyebrow="User Info"
-        title="Profile, subscription, and injury status."
-        copy={visibleRole === "admin" ? "Inspect athlete information, plan access, and account status." : "Edit your personal information, avatar status, injuries, and subscription."}
+        title="Profile and injury status."
+        copy={visibleRole === "admin" ? "Inspect athlete information and trauma markers." : "Edit your personal information, profile photo, and managed injuries."}
       />
       <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
         <div className="space-y-4">
-          <DashboardPanel icon={UserCog} title="Avatar">
-            <div className="flex items-center gap-5">
-              <FitnessAvatar />
-              <div>
-                <p className="font-heading text-xl uppercase">{visibleRole === "admin" ? "Athlete Preview" : "Serkan Y."}</p>
-                <p className="text-sm text-muted-foreground">Active Tracking Enabled</p>
-              </div>
+          <div className="border border-border bg-card p-5 text-center">
+            <div className="relative mx-auto h-24 w-24 mb-4 rounded-full border border-border bg-background overflow-hidden flex items-center justify-center">
+              {profile.profilePic ? (
+                <img src={profile.profilePic} alt="Profile" className="h-full w-full object-cover" />
+              ) : (
+                <UserCog size={40} className="text-muted-foreground" />
+              )}
             </div>
-          </DashboardPanel>
+            <h2 className="font-heading text-xl uppercase tracking-wide truncate">
+              {profile.firstName || profile.lastName ? `${profile.firstName} ${profile.lastName}` : "Athlete Profile"}
+            </h2>
+            <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
+          </div>
 
-          <DashboardPanel icon={Activity} title="Status Monitor">
-            <div className="space-y-1 text-xs">
-              <span className="block font-heading uppercase text-muted-foreground tracking-wider">Active Pathology Flag</span>
-              <p className="font-medium text-foreground border border-border bg-background p-2">
-                {loading ? "Syncing core profile logs..." : activeTraumaSummary}
-              </p>
+          <div className="border border-border bg-card p-5">
+            <div className="flex items-center gap-3 mb-3">
+              <Activity className="text-primary" size={18} />
+              <h3 className="font-heading text-sm uppercase">Trauma Status</h3>
             </div>
-          </DashboardPanel>
+            <p className="text-sm font-medium border border-border bg-background p-3 text-center">
+              {loading ? "Syncing profile logs..." : `${activeTraumaCount} parts flagged under care`}
+            </p>
+          </div>
         </div>
 
-        <DashboardPanel icon={ChevronDown} title="Account Details & Injury Profiling">
-          <div>
-            <div className="mb-6 grid gap-3 md:grid-cols-2">
-              {[
-                ["Name", `${profile?.firstName || "Serkan"} ${profile?.lastName || "Y."}`],
-                ["Email", profile?.email || auth.currentUser?.email || ""],
-                ["Primary Sport", profile?.primarySport || "Soccer"],
-                ["Subscription", profile?.preferredProgram ? `${profile.preferredProgram} Program` : "Premium Return Program"],
-              ].map(([field, value]) => (
-                <div key={field} className="border border-border bg-background p-3">
-                  <span className="mb-2 block font-heading text-xs uppercase tracking-[0.2em] text-muted-foreground">{field}</span>
-                  <p className="min-h-6 text-sm text-foreground">{value}</p>
-                </div>
-              ))}
-            </div>
-            <Button type="button" variant="heroOutline" className="mb-6" onClick={() => navigate("/account/edit")}>
-              <Edit3 className="mr-2" size={16} /> Edit User Information
-            </Button>
+        <div className="border border-border bg-card p-5">
+          <div className="flex items-center gap-3 mb-4">
+            <ChevronDown className="text-primary" size={18} />
+            <h2 className="font-heading text-xl uppercase">Account Details</h2>
+          </div>
 
-            <h3 className="mb-2 font-heading text-sm uppercase tracking-widest text-primary">
-              Anatomical Injury Map Registry
-            </h3>
-            <p className="text-xs text-muted-foreground mb-4">
-              Select or tap body map vector coordinates directly to overlay diagnostic markers, dates, and logs synced immediately to your database profile.
-            </p>
+          <div className="grid gap-4 md:grid-cols-3 mb-6">
+            <div>
+              <span className="mb-2 block font-heading text-xs uppercase tracking-wider text-muted-foreground">First Name</span>
+              <input
+                className="w-full border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                value={profile.firstName}
+                onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
+                disabled={visibleRole === "admin"}
+              />
+            </div>
+            <div>
+              <span className="mb-2 block font-heading text-xs uppercase tracking-wider text-muted-foreground">Last Name</span>
+              <input
+                className="w-full border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                value={profile.lastName}
+                onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
+                disabled={visibleRole === "admin"}
+              />
+            </div>
+            <div>
+              <span className="mb-2 block font-heading text-xs uppercase tracking-wider text-muted-foreground">Email</span>
+              <input
+                className="w-full border border-border bg-background px-3 py-2 text-sm outline-none opacity-60"
+                value={profile.email}
+                disabled
+              />
+            </div>
+          </div>
+
+          <div className="border-t border-border pt-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+              <div>
+                <h3 className="font-heading text-sm uppercase tracking-widest text-primary">Anatomical Injury Map</h3>
+                <p className="text-xs text-muted-foreground">Select coordinates directly to stage markers.</p>
+              </div>
+
+              {hasChanges && (
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+                  <Button onClick={handleSaveToDatabase} disabled={isSaving} size="sm" variant="accent" className="gap-2">
+                    <Save size={14} />
+                    {isSaving ? "Saving..." : "Save Injury Configuration"}
+                  </Button>
+                </motion.div>
+              )}
+            </div>
 
             {loading ? (
               <div className="h-48 flex items-center justify-center border border-border border-dashed text-sm text-muted-foreground animate-pulse">
-                Retrieving clinical cloud maps...
+                Retrieving cloud maps...
               </div>
             ) : (
               <BodyMap
-                injuries={injuries}
-                onUpdateInjury={handleUpdateInjury}
-                onClearInjury={handleClearInjury}
+                injuries={pendingInjuries}
+                onUpdateInjury={handleStageInjury}
+                onClearInjury={handleStageClear}
               />
             )}
           </div>
-        </DashboardPanel>
+        </div>
       </div>
     </div>
   );
@@ -608,20 +644,6 @@ const Metric = ({ label, value }: { label: string; value: string }) => (
   <div className="border border-border bg-card p-5">
     <p className="font-heading text-xs uppercase tracking-[0.3em] text-muted-foreground">{label}</p>
     <p className="mt-4 font-heading text-5xl font-bold text-primary">{value}</p>
-  </div>
-);
-
-const FitnessAvatar = ({ compact = false }: { compact?: boolean }) => (
-  <div className={`relative shrink-0 rounded-full border border-border bg-background ${compact ? "h-11 w-11" : "h-20 w-20"}`}>
-    <svg viewBox="0 0 80 80" className="h-full w-full" aria-label="Fitness avatar with left knee support">
-      <circle cx="40" cy="18" r="9" className="fill-primary/80" />
-      <path d="M31 32h18l5 22H26z" className="fill-foreground/75" />
-      <path d="M28 34 16 49" className="stroke-foreground/75" strokeWidth="6" strokeLinecap="round" />
-      <path d="M52 34 64 47" className="stroke-foreground/75" strokeWidth="6" strokeLinecap="round" />
-      <path d="M33 54 27 70" className="stroke-foreground/75" strokeWidth="7" strokeLinecap="round" />
-      <path d="M47 54 54 70" className="stroke-foreground/75" strokeWidth="7" strokeLinecap="round" />
-      <rect x="21" y="56" width="14" height="7" className="fill-primary" rx="2" />
-    </svg>
   </div>
 );
 

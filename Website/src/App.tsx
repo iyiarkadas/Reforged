@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/contexts/CartContext";
+import ScrollToTop from "./components/ScrollTop";
 import Index from "./pages/Index.tsx";
 import SystemPage from "./pages/SystemPage.tsx";
 import CoachingPage from "./pages/CoachingPage.tsx";
@@ -26,6 +27,8 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollToTop /> 
+          
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/system" element={<SystemPage />} />
@@ -36,11 +39,7 @@ const App = () => (
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/portal/:section" element={<PortalPage />} />
-            <Route path="/account/edit" element={<EditAccountPage />} />
-            
-            {/* Open route accessible to everyone inside the system setup */}
             <Route path="/admin/applications" element={<AdminPage />} />
-
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
