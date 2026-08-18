@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 import { auth, saveUserInjuries, getUserInjuries, getUserProfile, type InjuryMap, type UserProfile } from "@/lib/firebase";
 import { BodyMap } from "@/components/BodyMap";
+import LanguageSelect from "@/components/LanguageSelect";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type Role = "user" | "admin";
 type Section = "dashboard" | "schedule" | "programs" | "blogs" | "exercises" | "profile";
@@ -183,6 +185,7 @@ const PortalPage = () => {
           </nav>
 
           <div className="flex items-center gap-3">
+            <LanguageSelect compact />
             {isTargetAdmin && (
               <Button 
                 variant="heroOutline" 
@@ -574,6 +577,7 @@ const CalendarGrid = () => (
 
 const InteractiveCalendar = () => {
   const [selectedDay, setSelectedDay] = useState(18);
+  const { language } = useLanguage();
   const selected = activityDetails[selectedDay] || {
     label: "Open day",
     load: 0,
@@ -612,7 +616,9 @@ const InteractiveCalendar = () => {
         })}
       </div>
       <div className="border border-border bg-background p-4">
-        <p className="font-heading text-xs uppercase tracking-[0.25em] text-primary">Day {selectedDay}</p>
+        <p className="font-heading text-xs uppercase tracking-[0.25em] text-primary">
+          {language === "tr" ? `${selectedDay}. Gün` : `Day ${selectedDay}`}
+        </p>
         <h3 className="mt-2 font-heading text-2xl uppercase">{selected.label}</h3>
         <p className="mt-2 text-sm text-muted-foreground">{selected.notes}</p>
         <div className="mt-5 space-y-4">

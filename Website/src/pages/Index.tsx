@@ -10,7 +10,7 @@ import { ArrowRight, Shield, Zap, Target, RotateCcw } from "lucide-react";
 const pillars = [
   { icon: Zap, title: "Performance", desc: "Athletic performance development for competitive sports." },
   { icon: RotateCcw, title: "Rebuild", desc: "Structured recovery and rebuilding after injuries." },
-  { icon: Target, title: "Return", desc: "Return to competitive sport — stronger than before." },
+  { icon: Target, title: "Return", desc: "Return to competitive sports — stronger than before." },
   { icon: Shield, title: "Mentality", desc: "Build the discipline and mindset required to compete." },
 ];
 
@@ -45,7 +45,7 @@ const Index = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="font-heading text-6xl md:text-8xl font-bold text-foreground uppercase leading-[0.9]"
           >
-            Still Built Like<br />
+            Built Like<br />
             <span className="text-primary">An Athlete</span>
           </motion.h1>
           <motion.p
@@ -69,7 +69,7 @@ const Index = () => {
             </Link>
             <Link to="/system">
               <Button variant="heroOutline" size="lg">
-                The System
+                system'
               </Button>
             </Link>
           </motion.div>
@@ -82,10 +82,10 @@ const Index = () => {
           <motion.div {...fadeInUp}>
             <p className="font-heading text-3xl md:text-4xl font-semibold text-foreground uppercase leading-tight">
               You train. You compete.<br />
-              <span className="text-primary">But you're not performing at your real level.</span>
+              <span className="text-primary">But you're not reaching your full potential.</span>
             </p>
             <p className="font-body text-muted-foreground mt-6">
-              This isn't a motivation problem. This is a system problem.
+              The problem isn't the motivation, it's the lack of a consistent system.
             </p>
           </motion.div>
         </div>
@@ -96,7 +96,7 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <motion.h2
             {...fadeInUp}
-            className="font-heading text-xs tracking-[0.5em] text-primary uppercase text-center mb-12"
+            className="font-heading text-4xl md:text-5xl font-bold text-primary uppercase text-center mb-12"
           >
             The Reforged System
           </motion.h2>
@@ -138,7 +138,7 @@ const Index = () => {
                 You don't need more exercises. You need structure. You don't need more motivation. You need direction.
               </p>
               <p className="font-body text-muted-foreground mt-4 leading-relaxed">
-                Your weakness is not the problem. It's unorganized. Reforged turns it into an advantage.
+                You do not possess lack of strength. It's the unorganized nature of your life. Reforged turns this into your advantage.
               </p>
               <Link to="/system" className="inline-block mt-8">
                 <Button variant="heroOutline" size="default">
@@ -169,7 +169,7 @@ const Index = () => {
               Your Injury Becomes<br />Your Advantage
             </h2>
             <p className="font-body text-muted-foreground mt-6">
-              This is not an open program. We work with a limited number of athletes. If you're not serious, this won't work.
+              Our aim is to use your injury as an inflection point to restructure your approach to sports. This is not an open program. We work with a limited number of athletes. If you're not serious on your own development, the system won't work.
             </p>
             <Link to="/apply" className="inline-block mt-8">
               <Button variant="accent" size="lg">

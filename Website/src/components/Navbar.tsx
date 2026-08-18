@@ -4,6 +4,8 @@ import { Link, useLocation } from "react-router-dom";
 import CartSheet from "@/components/CartSheet";
 import ThemeToggle from "@/components/ThemeToggle";
 import { auth } from "@/lib/firebase";
+import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSelect from "@/components/LanguageSelect";
 
 const navLinks = [
   { label: "System", href: "/system" },
@@ -17,6 +19,7 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const location = useLocation();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => setIsLoggedIn(!!user));
@@ -44,17 +47,18 @@ const Navbar = () => {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {link.label}
+              {t(link.label)}
             </Link>
           ))}
         </nav>
 
         <div className="flex items-center gap-4">
+          <LanguageSelect compact />
           <ThemeToggle />
           <CartSheet />
           {isLoggedIn && (
             <Link to="/portal/dashboard" className="hidden items-center gap-2 border border-primary/40 px-3 py-2 font-heading text-xs uppercase tracking-[0.16em] text-primary transition-colors hover:bg-primary hover:text-primary-foreground sm:inline-flex">
-              <LayoutDashboard size={15} /> Dashboard
+              <LayoutDashboard size={15} /> {t("Dashboard")}
             </Link>
           )}
           <Link to={isLoggedIn ? "/portal/profile" : "/auth"} className="text-foreground hover:text-primary transition-colors" aria-label="Account">
@@ -87,7 +91,7 @@ const Navbar = () => {
             className="block py-3 font-heading text-sm tracking-[0.2em] uppercase text-muted-foreground hover:text-foreground"
             onClick={() => setMobileOpen(false)}
           >
-            {isLoggedIn ? "Dashboard" : "Account"}
+            {t(isLoggedIn ? "Dashboard" : "Account")}
           </Link>
         </nav>
       )}
