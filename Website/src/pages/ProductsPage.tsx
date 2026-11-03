@@ -15,7 +15,7 @@ const products = [
     name: "Daily Crew Socks",
     desc: "Everyday athletic sock. Higher cotton ratio, softer feel. Lifestyle + gym ready. The entry point to the REFORGED system.",
     image: productSocks,
-    tag: "Available",
+    tag: "Coming Soon",
     price: 239,
     type: "product" as const,
     details: ["Soft, comfortable fit", "Higher cotton ratio", "4-6% elastane", "Crew length", "S/M & L/XL"],
